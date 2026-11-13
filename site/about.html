@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Ali Rasheed, the person behind ToonSaz</title>
+<meta name="description" content="ToonSaz is built by Ali Rasheed, a developer in Pakistan, because Urdu and Hindi creators deserved a local avatar tool instead of a monthly subscription.">
+<link rel="canonical" href="https://toonsaz.vercel.app/about">
+<meta name="theme-color" content="#f7f5ef">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="ToonSaz">
+<meta property="og:title" content="About ToonSaz and Ali Rasheed">
+<meta property="og:description" content="Why a local, free, Urdu-first cartoon avatar tool exists.">
+<meta property="og:url" content="https://toonsaz.vercel.app/about">
+<meta property="og:image" content="https://toonsaz.vercel.app/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@AliRasheedBti">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "Ali Rasheed",
+    "email": "alihouse512@gmail.com",
+    "jobTitle": "Software developer",
+    "url": "https://toonsaz.vercel.app/about",
+    "sameAs": [
+      "https://github.com/AliRash3ed",
+      "https://www.linkedin.com/in/alirasheedbhatti",
+      "https://twitter.com/AliRasheedBti",
+      "https://www.instagram.com/this_is_ali_r",
+      "https://www.facebook.com/profile.php?id=61579456175357"
+    ]
+  }
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="ToonSaz home"><span class="mark" aria-hidden="true">t<span>.</span></span><span class="name">TOON<br>SAZ</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#characters">Characters</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/docs">Docs</a>
+    </nav>
+    <a class="header-cta" href="/download">Download</a>
+  </div>
+</header>
+
+<main>
+<div class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Who built this</p>
+    <h1>Ali Rasheed</h1>
+    <p class="lede">Developer. Built ToonSaz because the tools that existed assumed you wrote in English, paid monthly, and were happy uploading your face to someone else's server.</p>
+  </div>
+</div>
+
+<section style="padding-top:36px">
+  <div class="wrap prose">
+    <h2>Why this exists</h2>
+    <p>I kept running into the same wall. A creator writes a script in Roman Urdu, wants a cartoon presenter to say it, and the options are: a subscription tool that renders in the cloud and charges per minute, an English-only pipeline that turns “assalamualaikum” into mush, or a research repository with forty dependencies and no interface.</p>
+    <p>So the goal was narrow on purpose. One machine, no account, a real Urdu and Hindi path, and an export you can publish. Not a platform. Not a studio. A tool that finishes one job.</p>
+
+    <h2>What that changed</h2>
+    <p>Three decisions came directly out of that goal:</p>
+    <ul>
+      <li><strong>Everything runs locally.</strong> The server binds to localhost and refuses anything else. Your recording never leaves the folder it sits in.</li>
+      <li><strong>No key, no gate.</strong> Gesture planning is a rule engine, not a model call. It works with the network unplugged. The optional AI path is optional in the literal sense.</li>
+      <li><strong>Devanagari is a first-class feature.</strong> Most tools treat non-Latin scripts as an edge case. Here the converter sits in the script panel, where the words are.</li>
+    </ul>
+
+    <h2>What I actually wrote</h2>
+    <p>The parts that took the longest were not the visible ones. A deterministic gesture planner that never repeats a pose twice in a row. A rig that swaps wardrobe without breaking the jaw. A transliteration layer that keeps Devanagari matras and Urdu diacritics instead of silently dropping them. Cross-file drift tests so a new avatar cannot be half-registered.</p>
+    <p>The character art is mine, drawn with AI assistance and cleaned into vector rigs. The render pipeline is built on HyperFrames, GSAP, Rhubarb and Faster-Whisper — all credited in the repository.</p>
+
+    <h2>Honest limits</h2>
+    <p>There is no macOS or Linux installer. There is no custom character upload. The built-in voice needs a connection because Edge TTS is Microsoft's endpoint, not a local model. If those are dealbreakers, the <a href="/#faq">FAQ</a> says so plainly rather than burying it.</p>
+
+    <h2>Say hello</h2>
+    <p>The fastest way to reach me is email. Bug reports belong in the issue tracker so the fix is visible to the next person.</p>
+    <ul>
+      <li>Email — <a href="mailto:alihouse512@gmail.com">alihouse512@gmail.com</a></li>
+      <li>GitHub — <a href="https://github.com/AliRash3ed" rel="noopener">AliRash3ed</a></li>
+      <li>LinkedIn — <a href="https://www.linkedin.com/in/alirasheedbhatti" rel="noopener">alirasheedbhatti</a></li>
+      <li>Twitter — <a href="https://twitter.com/AliRasheedBti" rel="noopener">@AliRasheedBti</a></li>
+      <li>Instagram — <a href="https://www.instagram.com/this_is_ali_r" rel="noopener">this_is_ali_r</a></li>
+      <li>Facebook — <a href="https://www.facebook.com/profile.php?id=61579456175357" rel="noopener">Ali Rasheed</a></li>
+    </ul>
+
+    <h2>Licence</h2>
+    <p>ToonSaz source is MIT licensed. Use it, fork it, ship it. If you build something with it, I would like to see it — that is the whole payment.</p>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Try it on your own machine.</h2>
+    <p class="lede">Four commands, no sign-up, no card.</p>
+    <div class="hero-actions">
+      <a class="button" href="/download">Download ToonSaz</a>
+      <a class="button ghost" href="/docs">Read the docs</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-note" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Ali Rasheed. Source under the MIT licence.</span>
+      <span><a href="/privacy">Privacy</a> · <a href="/about">About</a> · <a href="/changelog">Changelog</a></span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

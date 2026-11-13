@@ -1,0 +1,28 @@
+# Dependencies and build caches
+node_modules/
+avatar/.hyperframes/
+avatar/.thumbnails/
+avatar/.waveform-cache/
+
+# Local state and secrets
+.env
+.env.local
+avatar/.env.local
+avatar/.voice-private/
+avatar/library-server.log
+avatar/.gesture-check.mjs
+avatar/.translit-check.json
+
+# Generated media
+avatar/renders/
+avatar/assets/uploads/
+harness-smoke-test.mp4
+
+# Archives and scratch copies
+*.7z
+*.zip
+voiceover_module/
+voiceover_module - Copy/
+
+# Tooling scratch
+.kilo/

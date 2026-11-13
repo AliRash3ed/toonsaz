@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — ToonSaz</title>
+<meta name="description" content="ToonSaz collects nothing on this site and keeps your files on your own machine. Exactly what leaves your computer, and when.">
+<link rel="canonical" href="https://toonsaz.vercel.app/privacy">
+<meta name="theme-color" content="#f7f5ef">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ToonSaz">
+<meta property="og:title" content="Privacy — ToonSaz">
+<meta property="og:description" content="No analytics, no cookies, no trackers. What leaves your machine, and only when you ask.">
+<meta property="og:url" content="https://toonsaz.vercel.app/privacy">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="ToonSaz home"><span class="mark" aria-hidden="true">t<span>.</span></span><span class="name">TOON<br>SAZ</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#characters">Characters</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/docs">Docs</a>
+    </nav>
+    <a class="header-cta" href="/download">Download</a>
+  </div>
+</header>
+
+<main>
+<div class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Last updated 13 November 2026</p>
+    <h1>Privacy</h1>
+    <p class="lede">The short version: this website has no analytics, and the app does its work on your computer. Below is the long version, because “we respect your privacy” is not a policy.</p>
+  </div>
+</div>
+
+<section style="padding-top:36px">
+  <div class="wrap prose">
+    <h2>This website</h2>
+    <p>toonsaz.vercel.app is a set of static HTML files. It sets no cookies, loads no fonts or scripts from third parties, and contains no analytics, pixels or session recorders. There is nothing to consent to because there is nothing collecting.</p>
+    <p>The site is hosted on Vercel. Like any web host, Vercel keeps standard request logs — IP address, user agent, requested path, timestamp — for security and abuse prevention. Those logs are Vercel's, governed by <a href="https://vercel.com/legal/privacy-policy" rel="noopener">Vercel's privacy policy</a>, and I do not receive or query them.</p>
+
+    <h2>The application</h2>
+    <p>ToonSaz runs as a local server on <code>127.0.0.1:3010</code> and opens in your browser. It refuses requests whose host header is not localhost and rejects cross-origin writes, so other machines on your network cannot reach it and other websites cannot drive it.</p>
+    <p>Your uploads, transcripts, settings and rendered videos stay in the project folder on your disk. There is no sync, no backup service and no telemetry. Uninstalling means deleting the folder.</p>
+
+    <h2>What leaves your computer</h2>
+    <p>Only what you explicitly trigger. There are three outbound paths:</p>
+    <ul>
+      <li><strong>Edge TTS.</strong> When you generate speech, the script text is sent to Microsoft's Edge read-aloud endpoint through the <code>edge-tts</code> package. Microsoft receives the text and your IP address. If you never use the Edge TTS tab, nothing is sent.</li>
+      <li><strong>OpenRouter.</strong> Only if you add <code>OPENROUTER_API_KEY</code> and tick “Use OpenRouter semantic cue analysis”. The request contains the transcript text and word timings. It never contains audio, video or images.</li>
+      <li><strong>OmniVoice.</strong> Only if you add <code>OMNIVOICE_HF_TOKEN</code> and submit a reference clip. That clip and its transcript are sent to the Hugging Face Space that performs the clone.</li>
+    </ul>
+    <p>There is no fourth path. Model downloads for Whisper and the headless browser are fetched from their public sources during setup and then cached locally.</p>
+
+    <h2>Voice cloning and consent</h2>
+    <p>Cloning is off by default and requires a credential you supply. The editor requires you to tick a box confirming you own the voice or have explicit permission to use it. Do not clone a voice you do not have rights to. If someone reports a clone made with this tool, the honest answer is that the tool asked and the operator lied — but the request is still to stop.</p>
+
+    <h2>Children</h2>
+    <p>The app is not directed at children under 13 and collects no personal information from anyone, so there is nothing special to say here beyond that.</p>
+
+    <h2>Your rights</h2>
+    <p>There is no account and no stored profile, so there is no personal data to access, correct, export or delete on my side. If you believe something of yours is hosted here, write to me and I will remove it.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, the date at the top changes and the diff appears in the <a href="/changelog">changelog</a>. There is no mailing list to notify, which is itself a privacy feature.</p>
+
+    <h2>Contact</h2>
+    <p>Ali Rasheed — <a href="mailto:alihouse512@gmail.com">alihouse512@gmail.com</a>. For anything that looks like a security problem, please email rather than open a public issue.</p>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-note" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Ali Rasheed. Source under the MIT licence.</span>
+      <span><a href="/privacy">Privacy</a> · <a href="/about">About</a> · <a href="/changelog">Changelog</a></span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

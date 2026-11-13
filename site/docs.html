@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToonSaz documentation — build your first cartoon avatar video</title>
+<meta name="description" content="How to use ToonSaz: choose a character, pick a voice, convert a script to Devanagari, plan gestures, and export a 1080p MP4 or transparent WebM.">
+<link rel="canonical" href="https://toonsaz.vercel.app/docs">
+<meta name="theme-color" content="#f7f5ef">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ToonSaz">
+<meta property="og:title" content="ToonSaz documentation">
+<meta property="og:description" content="Character, voice, script, cues, export — the whole editor, screen by screen.">
+<meta property="og:url" content="https://toonsaz.vercel.app/docs">
+<meta property="og:image" content="https://toonsaz.vercel.app/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@AliRasheedBti">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "ToonSaz documentation",
+  "description": "How to build a cartoon avatar video with ToonSaz.",
+  "url": "https://toonsaz.vercel.app/docs",
+  "author": { "@type": "Person", "name": "Ali Rasheed", "url": "https://toonsaz.vercel.app/about" },
+  "publisher": { "@type": "Organization", "name": "ToonSaz" },
+  "inLanguage": "en"
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="ToonSaz home"><span class="mark" aria-hidden="true">t<span>.</span></span><span class="name">TOON<br>SAZ</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#characters">Characters</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/docs" aria-current="page">Docs</a>
+    </nav>
+    <a class="header-cta" href="/download">Download</a>
+  </div>
+</header>
+
+<main>
+<div class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Documentation · v1.0</p>
+    <h1>Build your first video</h1>
+    <p class="lede">The editor is one page with three numbered sections. Read this once and you will not need it again.</p>
+  </div>
+</div>
+
+<section style="padding-top:36px">
+  <div class="wrap prose">
+    <h2>Before the first run</h2>
+    <p>Start the server with <code>npm run library</code> from the <code>avatar</code> folder, or double-click <code>Start_Avatar_Studio.bat</code>. The editor opens at <code>http://127.0.0.1:3010/library.html</code>. Nothing is served to your network — the server rejects any request whose host is not localhost.</p>
+
+    <h2>01 · Choose your presenter</h2>
+    <p>The cast strip holds forty characters. Clicking one swaps the rig on the stage immediately, without rebuilding anything. Below the stage, the <strong>Gesture</strong>, <strong>Emotion</strong>, <strong>Look</strong> and <strong>Scene</strong> tabs change how that presenter appears and behaves.</p>
+    <ul>
+      <li><strong>Gesture</strong> — leave it on “Follow script cues” and the planner decides, or pin one pose for the whole clip.</li>
+      <li><strong>Emotion</strong> — same idea, for the face. A pinned expression overrides automatic emotions but never touches the audio.</li>
+      <li><strong>Look</strong> — outfit, glasses, headwear, earrings, neckwear. Not every rig supports every item; the menu only lists what fits.</li>
+      <li><strong>Scene</strong> — aspect ratio, background, placement and the split-layout video.</li>
+    </ul>
+    <p>Every change is saved to <code>assets/avatar-settings.js</code> the moment you make it. There is no Save button because there is nothing to forget.</p>
+
+    <h2>02 · Voice and footage</h2>
+    <h3>Upload a recording</h3>
+    <p>Drop in a WAV, MP3, M4A, AAC, OGG, FLAC, OPUS, AIFF, WebM or WMA file. With “transcribe automatically” ticked, the server runs Faster-Whisper, then Rhubarb, then the cue planner, in that order. This is the highest-quality path because the mouth follows a real human performance.</p>
+
+    <h3>Edge TTS</h3>
+    <p>Type your script and let Microsoft's neural voices read it. Pick a locale, pick a voice, set the maximum internal pause, and press generate. This path needs an internet connection and no API key.</p>
+    <div class="note"><strong>Which voice for which script?</strong> A Hindi voice (<code>hi-IN</code>) reads Devanagari. An Urdu voice (<code>ur-PK</code>) reads Urdu script. If your script is in Roman Urdu, convert it first — see below.</div>
+
+    <h3>OmniVoice clone</h3>
+    <p>Upload three to sixty seconds of clean speech you own or have permission to use, type the exact words spoken in that clip, and tick the consent box. Cloning is English and Spanish only, and needs <code>OMNIVOICE_HF_TOKEN</code> in <code>avatar/.env.local</code>.</p>
+
+    <h2>03 · The spoken words</h2>
+    <p>The script box must match the narration word for word. It is what the gesture planner reads, so a script that disagrees with the audio produces cues that land in the wrong place.</p>
+
+    <h3>Converting to Devanagari</h3>
+    <p>Press <strong>Convert to Devanagari</strong> under the script box. The converter detects the writing system and shows a preview without touching your text.</p>
+    <ul>
+      <li><strong>Roman Urdu and Hinglish</strong> convert by rule, with a dictionary for words where spelling is ambiguous.</li>
+      <li><strong>Urdu script</strong> converts through a letter table plus a dictionary, because Urdu leaves short vowels unwritten.</li>
+      <li><strong>English prose</strong> is recognised and left alone rather than mangled.</li>
+      <li><strong>Brand names and acronyms</strong> like <code>OpenRouter</code> or <code>VoxCPM2</code> stay in Latin script; <code>AI</code> and <code>SEO</code> are spelled out.</li>
+    </ul>
+    <p>Read the preview before pressing <strong>Use this script</strong>. If a word is wrong, edit the textarea afterwards. Applying the conversion clears the timed transcript, because those timings belonged to the old words.</p>
+
+    <h3>Timed transcripts</h3>
+    <p>If you already have word timings — SRT, VTT, Whisper JSON or plain segment JSON — paste them under “Have timestamps?”. The planner uses them instead of estimating, which tightens every cue.</p>
+
+    <h2>The cue track</h2>
+    <p>Under the build buttons, two lanes show hands and expression across the timeline. Click a block to inspect the phrase that produced it. If the planner guessed wrong, edit the row and press save — your manual cues win until the next rebuild.</p>
+    <p>Automatic planning follows three rules: a semantic keyword sets the pose when one matches, gaps are filled on a five-second cadence, and no two adjacent segments may share both a gesture and an expression. That last rule is why the performance never freezes.</p>
+
+    <h2>Export</h2>
+    <p>Name the file, pick a format, press export.</p>
+    <ul>
+      <li><strong>MP4</strong> — H.264, 1080p, 30 fps. The one to upload.</li>
+      <li><strong>WebM</strong> — VP9 with an alpha channel. Only meaningful with the transparent background, and the one to composite in an editor.</li>
+    </ul>
+    <p>Renders land in <code>avatar/renders/</code>. A download link appears in the header when the file is ready.</p>
+
+    <h2>Command line</h2>
+    <p>Everything the editor does is also a script, which is what you want for batches:</p>
+    <pre><code>cd avatar
+npm run avatar-job -- --avatars
+npm run avatar-job -- --script my-script.txt --avatar forma-zara --aspect 9:16</code></pre>
+    <p><code>--avatars</code> lists the curated ids. The job runner reads the same settings file as the editor, so a batch run and a manual run produce the same video.</p>
+
+    <h2>Checks</h2>
+    <p>Two commands keep the project honest:</p>
+    <pre><code>npm run test    # 125 unit and integration tests
+npm run check   # HyperFrames lint, runtime, layout, motion, contrast</code></pre>
+
+    <h2>When something looks wrong</h2>
+    <ul>
+      <li><strong>The mouth does not move.</strong> The narration has no word timings. Rebuild and watch for the transcription step.</li>
+      <li><strong>Gestures repeat.</strong> The script is too short for the cadence. Add phrases or pin a gesture you like.</li>
+      <li><strong>The avatar is cropped.</strong> Check placement under Scene — scale above 100% pushes the rig outside the frame.</li>
+      <li><strong>Devanagari looks off.</strong> Transliteration is a draft. Fix the word in the textarea; the next build reads your corrected text.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Still stuck?</h2>
+    <p class="lede">Open an issue with the script and the error line. A reproducible report gets fixed fast.</p>
+    <div class="hero-actions">
+      <a class="button" href="https://github.com/AliRash3ed/toonsaz/issues" rel="noopener">Open an issue</a>
+      <a class="button ghost" href="/download">Download ToonSaz</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-note" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Ali Rasheed. Source under the MIT licence.</span>
+      <span><a href="/privacy">Privacy</a> · <a href="/about">About</a> · <a href="/changelog">Changelog</a></span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>ToonSaz / Local Avatar Video Editor</title>
+  <link rel="stylesheet" href="/library.css">
+  <script defer src="/gsapdist/gsap.min.js"></script>
+  <script defer src="/assets/avatar-forma.js"></script>
+  <script defer src="/assets/avatar-profiles.js"></script>
+  <script defer src="/assets/gesture-engine.js"></script>
+  <script defer src="/assets/avatar-rig.js"></script>
+  <script defer src="/library.js"></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <a class="wordmark" href="/library.html" aria-label="ToonSaz home"><span class="brand-symbol" aria-hidden="true">t<span>.</span></span><span>TOON<br>SAZ</span></a>
+      <div class="local-tag"><span class="status-dot" aria-hidden="true"></span>LOCAL WORKSHOP <span class="local-sub">Local by default; remote voices are opt-in.</span></div>
+      <nav class="header-actions" aria-label="Project actions">
+        <a class="studio-link" href="http://localhost:3007/#project/avatar" target="_blank" rel="noopener noreferrer">Open Studio <span aria-hidden="true">↗</span></a>
+        <label class="export-name-label" for="export-name"><span>FILE</span><input id="export-name" type="text" maxlength="71" value="presenter-video" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,70}" spellcheck="false" data-write disabled></label>
+        <label class="export-format-label" for="export-format"><span>EXPORT</span><select id="export-format" data-write disabled><option value="mp4">MP4 / fast</option><option value="webm">WebM / transparent</option></select></label>
+        <a class="download-link" id="download-link" hidden download>Download video</a>
+        <button class="button button-ink export-button" id="export-button" type="button" data-write disabled>Export video <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-4-4 4 4 4-4M4 13v4h12v-4"/></svg></button>
+      </nav>
+    </header>
+
+    <div class="page-heading"><div><p class="eyebrow">A FACE FOR YOUR STORY</p><h1>Let your presenter do the talking.</h1></div><span class="save-state" id="save-state">Connecting to your project...</span></div>
+
+    <main class="workspace">
+      <section class="preview-column" aria-labelledby="cast-title">
+        <div class="section-heading"><h2 id="cast-title"><span class="section-number">01</span> Choose your presenter</h2><span class="small-meta" id="cast-count">CHARACTER LIBRARY / ONE STAGE</span></div>
+        <div class="cast-strip" id="cast-strip" role="group" aria-label="Avatar portraits"></div>
+        <p class="cast-description" id="cast-description">Loading the original vector rig...</p>
+
+        <div class="stage-heading"><div><strong id="stage-name">LIVE PREVIEW</strong><span id="stage-outfit"></span></div><span class="mode-badge" id="mode-badge">Real audio lip sync</span></div>
+        <div class="stage-shell" id="stage-shell">
+          <div class="stage-art rig-host" id="rig-stage" role="img" aria-label="Selected avatar live preview"></div>
+          <video id="stage-video" class="stage-video" controls muted playsinline preload="metadata" aria-label="Upper video pane, muted" hidden></video>
+          <div class="video-empty" id="video-empty" hidden><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="2"/><path d="m13 11 8 5-8 5z"/></svg><strong>Add video to this split layout.</strong><span>Its position follows the selected aspect ratio.</span><button type="button" class="text-button" id="stage-import-video" data-write disabled>Import a video</button></div>
+          <span class="stage-corner" id="stage-corner">1080 x 1080</span>
+        </div>
+
+        <div class="transport">
+          <button class="play-button" id="play-button" type="button" aria-label="Play preview" disabled><svg id="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg></button>
+          <label class="sr-only" for="scrubber">Preview time</label><input id="scrubber" class="scrubber" type="range" min="0" max="1" step="0.01" value="0" disabled>
+          <div class="timecode"><output id="current-time">00:00.0</output><span>/</span><output id="total-time">00:00.0</output></div>
+        </div>
+        <div class="narration-controls" id="narration-controls"><div class="audio-heading"><span class="eyebrow">CURRENT NARRATION</span><span id="audio-description">Original recording</span></div><audio id="narration" controls preload="metadata" aria-label="Current lip-synced narration"></audio></div>
+        <div class="silent-note" id="silent-note" hidden><strong>Silent gesture rehearsal.</strong> No speech has been generated. <button type="button" class="text-button" id="restore-voice" data-write>Return to current narration</button></div>
+      </section>
+
+      <section class="editor-column" aria-label="Presenter settings and sources">
+        <fieldset class="performance-fieldset" id="performance-fieldset" disabled>
+          <legend class="sr-only">Presenter performance</legend>
+          <div class="inspector-heading"><h2>Give the words a little character.</h2><span class="small-meta">SAVED AUTOMATICALLY</span></div>
+          <div class="tabs" role="tablist" aria-label="Performance settings"><button type="button" role="tab" id="tab-gesture" aria-selected="true" aria-controls="panel-gesture" tabindex="0">Gesture</button><button type="button" role="tab" id="tab-emotion" aria-selected="false" aria-controls="panel-emotion" tabindex="-1">Emotion</button><button type="button" role="tab" id="tab-look" aria-selected="false" aria-controls="panel-look" tabindex="-1">Look</button><button type="button" role="tab" id="tab-scene" aria-selected="false" aria-controls="panel-scene" tabindex="-1">Scene</button></div>
+          <div class="tab-panel" id="panel-gesture" role="tabpanel" aria-labelledby="tab-gesture">
+            <button class="auto-choice" id="gesture-auto" type="button" data-gesture="auto" aria-pressed="true"><span class="auto-symbol" aria-hidden="true">A</span><span><strong>Follow script cues</strong><small>Hands change with the spoken phrase.</small></span><span class="choice-check" aria-hidden="true"></span></button>
+            <p class="control-caption">Or pin a gesture. Counting and precision poses include individual fingers.</p><div class="gesture-grid" id="gesture-grid" role="group" aria-label="Manual gesture"></div>
+          </div>
+          <div class="tab-panel" id="panel-emotion" role="tabpanel" aria-labelledby="tab-emotion" hidden><button class="auto-choice" id="emotion-auto" type="button" data-emotion="auto" aria-pressed="true"><span class="auto-symbol" aria-hidden="true">A</span><span><strong>Follow emotional cues</strong><small>Expressions respond to the transcript.</small></span><span class="choice-check" aria-hidden="true"></span></button><div class="emotion-grid" id="emotion-grid" role="group" aria-label="Manual emotion"></div><p class="control-caption">A pinned expression overrides automatic emotions. It does not change the recorded voice.</p></div>
+          <div class="tab-panel" id="panel-look" role="tabpanel" aria-labelledby="tab-look" hidden>
+            <div class="look-grid">
+              <label>OUTFIT<select id="outfit" data-setting="outfit"></select></label>
+              <label>GLASSES<select id="glasses" data-setting="glasses"></select></label>
+              <label>HEADWEAR<select id="hat" data-setting="hat"></select></label>
+              <label>EARRINGS<select id="earrings" data-setting="earrings"></select></label>
+              <label>NECKWEAR<select id="neckwear" data-setting="neckwear"></select></label>
+            </div>
+            <p class="control-caption">Every model has its own hat, glasses, ear and neck anchors. Outfit changes keep that character's face and body proportions.</p>
+          </div>
+          <div class="tab-panel" id="panel-scene" role="tabpanel" aria-labelledby="tab-scene" hidden>
+            <p class="control-label">ASPECT RATIO</p><div class="aspect-options" role="group" aria-label="Output aspect ratio"><button type="button" data-aspect-ratio="1:1" aria-pressed="true"><span class="aspect-icon square"></span><strong>1:1</strong><small>1080 x 1080</small></button><button type="button" data-aspect-ratio="9:16" aria-pressed="false"><span class="aspect-icon portrait"></span><strong>9:16</strong><small>1080 x 1920</small></button><button type="button" data-aspect-ratio="16:9" aria-pressed="false"><span class="aspect-icon landscape"></span><strong>16:9</strong><small>1920 x 1080</small></button></div>
+            <p class="control-label">COMPOSITION</p><div class="layout-options" role="group" aria-label="Stage layout"><button type="button" data-layout="solo" aria-pressed="true"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="2"/><circle cx="16" cy="13" r="4"/><path d="M9 25v-3a7 7 0 0 1 14 0v3"/></svg><strong>Avatar only</strong></button><button type="button" data-layout="split" aria-pressed="false"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="2"/><path d="M3 15h26"/><circle cx="16" cy="21" r="2"/><path d="M11 29v-2a5 5 0 0 1 10 0v2"/></svg><strong>Video top / avatar below</strong></button></div>
+            <p class="control-label background-label">BACKGROUND</p><div class="background-options" id="background-options" role="group" aria-label="Stage background"></div><div class="scene-imports"><label class="compact-import"><input id="background-file" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" data-write disabled><span>+ Upload custom background</span></label><button class="text-button" id="transparent-background" type="button" data-write disabled>Use transparent background</button></div>
+            <div class="placement-controls"><label>X POSITION <output id="position-x-value">0</output><input id="position-x" type="range" min="-100" max="100" step="1" value="0" data-write disabled></label><label>Y POSITION <output id="position-y-value">0</output><input id="position-y" type="range" min="-100" max="100" step="1" value="0" data-write disabled></label><label>SCALE <output id="position-scale-value">100%</output><input id="position-scale" type="range" min="50" max="180" step="1" value="100" data-write disabled></label><button class="text-button" id="reset-placement" type="button" data-write disabled>Reset position</button></div>
+            <label class="checkbox-row"><input id="video-enabled" type="checkbox">Show imported video</label><p class="control-caption">9:16 split keeps footage above the avatar. In 16:9 split, footage moves left and the avatar moves right.</p>
+          </div>
+        </fieldset>
+
+        <section class="source-section" aria-labelledby="source-title"><div class="section-heading"><h2 id="source-title"><span class="section-number">02</span> Voice &amp; footage</h2><span class="small-meta">UPLOAD / EDGE TTS / OMNI CLONE</span></div>
+          <div class="voice-source-tabs" role="tablist" aria-label="Voice source"><button type="button" class="is-active" data-voice-source="upload" aria-pressed="true">Upload recording</button><button type="button" data-voice-source="edge" aria-pressed="false">Edge TTS</button><button type="button" data-voice-source="omni" aria-pressed="false">Omni clone</button></div>
+          <div class="voice-source-panel" id="voice-panel-upload" data-voice-panel="upload">
+            <div class="imports"><label class="import-slot"><input id="audio-file" type="file" accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,.opus,.aif,.aiff,.webm,.wma" aria-label="Import actual narration audio" data-write disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4m4-8v12m4-16v20m4-16v12m4-8v4"/></svg><span><strong>Import narration</strong><small id="audio-file-name">WAV, MP3, M4A, AAC, OGG, FLAC, OPUS, AIFF, WebM or WMA</small></span><span class="import-plus" aria-hidden="true">+</span><span class="upload-progress" id="audio-upload-progress" hidden><span></span></span></label><label class="import-slot"><input id="video-file" type="file" accept=".mp4,.webm,.mov,.mkv,.m4v,.avi" aria-label="Import split-layout video" data-write disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span><strong>Import video</strong><small id="video-file-name">MP4, WebM, MOV, MKV, M4V or AVI</small></span><span class="import-plus" aria-hidden="true">+</span><span class="upload-progress" id="video-upload-progress" hidden><span></span></span></label></div>
+            <div class="source-options"><label class="checkbox-row"><input id="auto-transcribe" type="checkbox" checked data-write disabled>After upload, transcribe and build lip-sync automatically</label><label class="checkbox-row"><input id="use-video-audio" type="checkbox" data-write disabled>Use the imported video's voice track</label><label class="recognizer-label" for="language">Speech language<select id="language" data-write disabled><option value="auto">Auto detect</option><option value="en">English</option><option value="ur">Urdu</option><option value="hi">Hindi</option><option value="es">Spanish</option><option value="ja">Japanese</option><option value="ar">Arabic</option><option value="fr">French</option><option value="de">German</option><option value="zh">Chinese</option><option value="ko">Korean</option><option value="pt">Portuguese</option><option value="ru">Russian</option><option value="it">Italian</option><option value="bn">Bengali</option></select></label><label class="recognizer-label" for="recognizer">Rhubarb recognizer<select id="recognizer" data-write disabled><option value="pocketSphinx">English / pocketSphinx</option><option value="phonetic" selected>Multilingual / phonetic</option></select></label></div>
+            <p class="provider-disclosure is-local">Your recording stays on this machine. Faster-Whisper creates word timestamps, then Rhubarb creates mouth shapes.</p>
+          </div>
+          <div class="voice-source-panel" id="voice-panel-edge" data-voice-panel="edge" hidden>
+            <div class="voice-form-grid"><label>LANGUAGE / LOCALE<select id="edge-language" data-write disabled><option value="">Loading current Edge catalog...</option></select></label><label>VOICE<select id="edge-voice" data-write disabled><option value="">Choose a locale first</option></select></label><label>MAX INTERNAL PAUSE <output id="edge-pause-value">0.20s</output><input id="edge-pause" type="range" min="10" max="30" value="20" step="1" data-write disabled></label></div>
+            <button class="button button-ink voice-generate" id="edge-generate" type="button" data-write disabled>Generate Edge voice &amp; animate</button>
+            <p class="provider-disclosure">Edge TTS sends only the script text to Microsoft's speech service. The generated audio is transcribed and animated locally.</p>
+          </div>
+          <div class="voice-source-panel" id="voice-panel-omni" data-voice-panel="omni" hidden>
+            <div class="imports single-import"><label class="import-slot"><input id="voice-reference-file" type="file" accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,.opus,.aif,.aiff,.webm,.wma" aria-label="Upload a voice you own or may clone" data-write disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 19h14"/></svg><span><strong>Reference voice</strong><small id="voice-reference-name">3–60 seconds of clean speech</small></span><span class="import-plus" aria-hidden="true">+</span><span class="upload-progress" id="reference-upload-progress" hidden><span></span></span></label></div>
+            <label class="reference-text-label">EXACT WORDS IN THE REFERENCE<textarea id="voice-reference-text" rows="3" maxlength="10000" placeholder="Type exactly what is spoken in the reference clip..." data-write disabled></textarea></label>
+            <div class="voice-form-grid"><label>LANGUAGE<select id="omni-language" data-write disabled><option value="en">English</option><option value="es">Spanish</option></select></label><label>SPEED <output id="omni-speed-value">1.00x</output><input id="omni-speed" type="range" min="50" max="150" value="100" step="5" data-write disabled></label></div>
+            <label class="consent-row"><input id="omni-consent" type="checkbox" data-write disabled>I own this voice or have explicit permission to clone it.</label>
+            <button class="button button-ink voice-generate" id="omni-generate" type="button" data-write disabled>Clone voice &amp; animate</button>
+            <p class="provider-disclosure">Omni sends the script, reference audio and reference transcript to the configured Hugging Face Space. No provider credential is stored in this page.</p>
+          </div>
+          <div class="voice-pipeline"><span>1</span> Voice <i>→</i><span>2</span> Faster-Whisper timestamps <i>→</i><span>3</span> Rhubarb lip-sync <i>→</i><span>4</span> 1–5s gesture + emotion cues</div>
+          <div class="provider-status" aria-label="Provider readiness"><p id="edge-status"><span></span>Edge catalog: checking</p><p id="omni-status"><span></span>Omni: checking</p><p id="openrouter-status"><span></span>OpenRouter: checking</p></div>
+          <label class="checkbox-row ai-cue-option"><input id="use-ai-cues" type="checkbox" data-write disabled>Use OpenRouter semantic cue analysis when configured <small>Sends transcript text and timings only; the deterministic local 1–5 second planner remains the fallback.</small></label>
+          <p class="source-hint" id="source-hint">Choose a voice source. Every successful voice is transcribed, lip-synced, emotionally cued and rendered through the same deterministic pipeline.</p>
+        </section>
+
+        <section class="script-section" aria-labelledby="script-title"><div class="section-heading"><h2 id="script-title"><span class="section-number">03</span> The spoken words</h2><button class="text-button sample-button" id="sample-button" type="button" data-write disabled>Try the baby-video script</button></div><label class="sr-only" for="script">Script matching the narration recording</label><textarea id="script" rows="5" placeholder="Paste the exact words spoken in your recording..." spellcheck="true" data-write disabled></textarea><div class="script-tools"><button class="text-button" id="transliterate-button" type="button" data-write disabled>Convert to Devanagari</button><span id="script-hint">Roman Urdu, Hinglish or Urdu script</span></div>
+<div class="translit-panel" id="translit-panel" hidden>
+<div class="translit-head"><strong id="translit-title">Devanagari preview</strong><span id="translit-meta"></span></div>
+<p class="translit-result" id="translit-result" lang="hi"></p>
+<div class="translit-actions"><button class="button button-ink" id="translit-apply" type="button">Use this script</button><button class="text-button" id="translit-copy" type="button">Copy</button><button class="text-button" id="translit-close" type="button">Dismiss</button></div>
+<p class="translit-note">Devanagari is what a Hindi voice reads correctly. Compare the preview with your script before using it, then build.</p>
+</div>
+<div class="sample-actions" id="sample-actions" hidden><span>01 Point up</span><span>02 Empathy</span><span>03 Direction</span><span>04 Stop</span></div>
+          <details class="transcript-details"><summary>Have timestamps? <span>SRT, VTT, Whisper or JSON</span></summary><label class="sr-only" for="words">Timed transcript</label><textarea id="words" rows="4" placeholder="Paste word timestamps, segment JSON, SRT or VTT. Leave empty for estimated gesture timing." spellcheck="false" data-write disabled></textarea><label class="timestamp-import">Or import a timed transcript<input id="words-file" type="file" accept=".json,.srt,.vtt,.txt" data-write disabled></label></details>
+          <div class="build-actions"><button class="button button-paper" id="plan-button" type="button" data-write disabled>Preview script gestures</button><button class="button button-ink" id="build-button" type="button" data-write disabled>Build / rebuild automatically <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8v4m4-7v10m4-13v16m4-11v6m3-5v4"/></svg></button></div>
+          <p class="honesty-note"><strong>Audio drives the mouth; words drive performance.</strong> Faster-Whisper supplies word timing. The local planner or optional remote semantic planner changes gestures and expressions every 1–5 seconds. Silent video imagery is not analyzed.</p>
+        </section>
+      </section>
+
+      <section class="timeline-section" aria-labelledby="timeline-title"><div class="section-heading timeline-heading"><div><h2 id="timeline-title">The cue track</h2><p id="timing-description">Gestures and expressions aligned to your current narration.</p></div><span class="timing-badge" id="timing-badge">LOADING</span></div>
+        <div class="timeline-grid"><div class="timeline-label ruler-label">SECONDS</div><div class="timeline-ruler" id="timeline-ruler"></div><div class="timeline-label">HANDS<span id="gesture-pin-note">Follow cues</span></div><div class="cue-lane gesture-lane" id="gesture-lane"></div><div class="timeline-label">EXPRESSION<span id="emotion-pin-note">Follow cues</span></div><div class="cue-lane emotion-lane" id="emotion-lane"></div></div>
+        <div class="cue-readout"><span class="readout-dot" aria-hidden="true"></span><strong id="active-gesture">Rest</strong><span id="active-emotion">Neutral</span><p id="active-cue-text">Press play or click a cue to inspect its timing.</p></div>
+        <details class="cue-details" id="cue-details"><summary>Edit the cue sheet <span id="cue-count">0 cues</span></summary><p class="control-caption">Start/end are seconds. Cues must be ordered, non-overlapping and inside the saved narration/video duration. Saving changes gestures only, never the voice or transcript.</p><div class="cue-table-scroll"><table class="cue-table"><thead><tr><th>Start</th><th>End</th><th>Gesture</th><th>Emotion</th><th><span class="sr-only">Remove</span></th></tr></thead><tbody id="cue-rows"></tbody></table></div><div class="cue-edit-actions"><button class="text-button" id="add-cue" type="button" data-write disabled>+ Add cue</button><button class="text-button" id="clear-cues" type="button" data-write disabled>Use automatic cues</button><button class="button button-paper" id="save-cues" type="button" data-write disabled>Save cues for render</button></div></details>
+      </section>
+    </main>
+
+    <footer class="footer"><div class="notice" id="notice" role="status" aria-live="polite"><span class="notice-indicator" aria-hidden="true"></span><span id="notice-text">Loading your local presenter workshop...</span></div><span class="footer-note">1080 CANVAS / 30 FPS / MP4 + ALPHA WEBM</span></footer>
+  </div>
+  <noscript>This local editor needs JavaScript. Start it with node scripts/library-server.mjs and open http://127.0.0.1:3010/library.html.</noscript>
+</body>
+</html>

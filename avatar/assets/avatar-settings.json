@@ -1,0 +1,25 @@
+{
+  "avatar": "ayan",
+  "background": "cream-grid",
+  "customBackground": null,
+  "layout": "solo",
+  "aspectRatio": "1:1",
+  "placement": {
+    "x": 0,
+    "y": 0,
+    "scale": 1
+  },
+  "outfit": "profile",
+  "glasses": "none",
+  "hat": "none",
+  "earrings": "profile",
+  "neckwear": "profile",
+  "gesture": "auto",
+  "emotion": "warm",
+  "video": {
+    "enabled": false,
+    "src": "assets/source-video.mp4",
+    "duration": 0
+  },
+  "actionCues": []
+}

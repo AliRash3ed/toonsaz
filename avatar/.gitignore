@@ -1,0 +1,5 @@
+.env.local
+.voice-private/
+renders/
+assets/uploads/
+library-server.log

@@ -1,0 +1,342 @@
+<template>
+  <!-- Original vector artwork. Visual references: Alvaro Montoro's CodePens
+       https://codepen.io/alvaromontoro/full/xxRKgRZ
+       https://codepen.io/alvaromontoro/full/mdmzojb
+       Fixed-pose / code-mouth approach: https://getanimo.io/blog/ai-avatar-kaise-banaye#concept -->
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+    }
+    #presenter-art {
+      position: absolute;
+      inset: 0;
+    }
+    #female-illustration {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .female-outline {
+      stroke: var(--outline-color, #302a28);
+      stroke-width: 4.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .female-skin,
+    .avatar-skin-material {
+      fill: url(#avatar-skin-material);
+    }
+    .female-hair {
+      fill: url(#avatar-hair-material);
+    }
+    .female-hoodie,
+    .avatar-cloth-material {
+      fill: url(#avatar-cloth-material);
+    }
+    .avatar-cloth-shadow-material {
+      fill: url(#avatar-cloth-shadow-material);
+    }
+    .avatar-eye-white-material > :not([fill="none"]) {
+      fill: url(#avatar-eye-white-material);
+    }
+    .avatar-iris-material [fill="var(--iris-color)"],
+    .avatar-iris-material [fill="var(--iris-color, #222425)"] {
+      fill: url(#avatar-iris-material);
+    }
+    .avatar-limb-depth {
+      filter: url(#avatar-soft-shadow);
+    }
+    .avatar-hand-material [data-part="highlight"] {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      opacity: 0.28;
+    }
+    .female-fold {
+      fill: none;
+      stroke: var(--cloth-shade, #592936);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .female-mouth-shape {
+      opacity: 0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    #female-mouth-X {
+      opacity: 1;
+    }
+    .female-mouth-open {
+      fill: #49272e;
+      stroke: var(--lip-color, #bb745f);
+      stroke-width: 4;
+    }
+    .female-lip-line {
+      fill: none;
+      stroke: var(--lip-color, #bb745f);
+      stroke-width: 4.5;
+    }
+    .female-tooth {
+      fill: #fffaf3;
+    }
+    .female-tongue {
+      fill: #dc8290;
+    }
+  </style>
+  <div
+    id="root"
+    data-composition-id="presenter"
+    data-duration="41.96666666666667"
+    data-width="1080"
+    data-height="1080"
+    data-fps="30" data-aspect-ratio="1:1">
+    <div id="presenter-art" class="clip" data-start="0" data-duration="41.96666666666667" data-track-index="0">
+      <svg
+        id="female-illustration"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1080 1080"
+        role="img"
+        aria-labelledby="female-title female-description"
+      >
+        <title id="female-title">Front-facing cartoon presenter</title>
+        <desc id="female-description">An expressive half-body presenter with script-timed gestures, facial expressions, and audio-synchronized mouth shapes.</desc>
+        <defs id="avatar-material-defs">
+          <linearGradient id="avatar-skin-material" x1="0" y1="0" x2="0.88" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.18" />
+            <stop offset="0.34" stop-color="var(--skin-color, #f2a582)" />
+            <stop offset="0.78" stop-color="var(--skin-color, #f2a582)" />
+            <stop offset="1" stop-color="var(--skin-shadow, #d58a69)" stop-opacity="0.9" />
+          </linearGradient>
+          <linearGradient id="avatar-hair-material" x1="0.12" y1="0" x2="0.9" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.15" />
+            <stop offset="0.26" stop-color="var(--hair-color, #49382f)" />
+            <stop offset="1" stop-color="var(--hair-color, #49382f)" stop-opacity="0.78" />
+          </linearGradient>
+          <linearGradient id="avatar-cloth-material" x1="0.08" y1="0" x2="0.92" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.2" />
+            <stop offset="0.3" stop-color="var(--hoodie-color, #803447)" />
+            <stop offset="0.76" stop-color="var(--hoodie-color, #803447)" />
+            <stop offset="1" stop-color="var(--cloth-shade, #592936)" stop-opacity="0.88" />
+          </linearGradient>
+          <linearGradient id="avatar-cloth-shadow-material" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="var(--cloth-trim, #964457)" />
+            <stop offset="1" stop-color="var(--cloth-shade, #592936)" />
+          </linearGradient>
+          <radialGradient id="avatar-eye-white-material" cx="0.36" cy="0.28" r="0.88">
+            <stop offset="0" stop-color="#ffffff" />
+            <stop offset="0.72" stop-color="#fffefd" />
+            <stop offset="1" stop-color="#dce6ed" />
+          </radialGradient>
+          <radialGradient id="avatar-iris-material" cx="0.34" cy="0.28" r="0.82">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.42" />
+            <stop offset="0.28" stop-color="var(--iris-color, #222425)" />
+            <stop offset="0.78" stop-color="var(--iris-color, #222425)" />
+            <stop offset="1" stop-color="#101820" stop-opacity="0.86" />
+          </radialGradient>
+          <filter id="avatar-soft-shadow" x="-18%" y="-18%" width="136%" height="142%" color-interpolation-filters="sRGB">
+            <feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#111827" flood-opacity="0.16" />
+          </filter>
+        </defs>
+        <rect id="avatar-background" width="1080" height="1080" fill="#ffffff" />
+        <image id="avatar-custom-background" x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" opacity="0" />
+        <g id="avatar-background-grid" fill="none" stroke-width="1" aria-hidden="true"></g>
+        <g id="female-particles" fill="#000000" aria-hidden="true"></g>
+        <g id="avatar-video-placeholder" opacity="0" aria-hidden="true">
+          <rect id="avatar-video-placeholder-panel" x="54" y="54" width="972" height="410" rx="18" fill="#f0f2f6" />
+          <path id="avatar-video-placeholder-play" d="M519 225 V293 L576 259 Z" fill="#8c99ad" />
+          <text id="avatar-video-placeholder-title"></text>
+          <text id="avatar-video-placeholder-subtitle"></text>
+        </g>
+        <g id="avatar-camera" data-layout-allow-overflow="true">
+        <g id="female-model" data-layout-allow-overflow="true">
+
+        <g id="female-back-hair" class="female-outline female-hair">
+          <path d="M540 177 C492 134 406 143 344 192 C290 237 273 321 264 393 C253 474 244 541 261 597 C272 632 257 668 274 704 C284 727 267 757 274 790 C282 829 308 818 321 849 C338 878 355 851 377 863 C410 880 439 837 463 811 L617 811 C641 837 670 880 703 863 C725 851 742 878 759 849 C772 818 798 829 806 790 C813 757 796 727 806 704 C823 668 808 632 819 597 C836 541 827 474 816 393 C807 321 790 237 736 192 C674 143 588 134 540 177 Z" />
+          <path d="M313 440 C285 533 294 587 318 628 C337 662 309 707 328 749 C347 787 329 817 355 844" fill="none" stroke="#362922" stroke-width="8" />
+          <path d="M767 440 C795 533 786 587 762 628 C743 662 771 707 752 749 C733 787 751 817 725 844" fill="none" stroke="#362922" stroke-width="8" />
+        </g>
+
+        <g id="female-body" class="female-outline" data-layout-allow-overflow="true">
+          <path class="female-hoodie" d="M384 697 C367 668 401 626 441 615 C472 605 608 605 639 615 C679 626 713 668 696 697 L665 754 L415 754 Z" />
+          <path d="M422 684 C446 649 477 638 540 639 C603 638 634 649 658 684 L628 731 L452 731 Z" fill="#592936" />
+          <path class="female-skin" d="M494 582 L586 582 L586 669 Q540 711 494 669 Z" />
+          <path d="M494 595 Q539 626 586 595 L586 630 Q540 655 494 629 Z" fill="#d58a69" stroke="none" />
+          <path d="M495 645 Q540 674 585 645" fill="none" stroke="#302a28" stroke-width="3.2" />
+          <g fill="#f8ecd7" stroke-width="2.8">
+            <circle cx="500" cy="649" r="5.5" /><circle cx="514" cy="656" r="5.5" />
+            <circle cx="531" cy="660" r="5.5" /><circle cx="549" cy="660" r="5.5" />
+            <circle cx="566" cy="656" r="5.5" /><circle cx="580" cy="649" r="5.5" />
+          </g>
+          <path class="female-hoodie" d="M423 683 Q454 673 478 679 Q540 724 602 679 Q626 673 657 683 C714 717 738 770 747 850 L774 1097 L306 1097 L333 850 C342 770 366 717 423 683 Z" />
+          <path d="M423 684 Q454 664 481 676 Q511 700 540 705 Q569 700 599 676 Q626 664 657 684 L625 715 Q582 738 540 738 Q498 738 455 715 Z" fill="#964457" />
+          <path class="female-fold" d="M423 684 Q451 725 475 743 M657 684 Q629 725 605 743 M382 786 Q401 861 386 936 M698 786 Q679 861 694 936" />
+          <path d="M481 727 C473 766 466 801 468 832 M599 727 C607 766 614 801 612 832" stroke="#f8ecd7" stroke-width="6" fill="none" />
+          <rect x="463" y="825" width="10" height="20" rx="4" fill="#302a28" stroke="none" />
+          <rect x="607" y="825" width="10" height="20" rx="4" fill="#302a28" stroke="none" />
+          <path d="M437 914 Q540 941 643 914 L666 1015 Q540 1040 414 1015 Z" fill="#733044" stroke="#592936" stroke-width="3.5" />
+          <path d="M450 925 L434 965 M630 925 L646 965" stroke="#a95264" stroke-width="3" fill="none" />
+          <path d="M321 1057 Q540 1079 759 1057" class="female-fold" />
+        </g>
+
+        <g id="female-neckwear" class="female-outline" aria-hidden="true"></g>
+
+        <g id="female-head" class="female-outline">
+          <g id="female-hat-back" aria-hidden="true"></g>
+          <g id="female-ears">
+            <path class="female-skin" d="M374 450 C347 427 333 454 343 483 C348 501 359 511 378 504 M706 450 C733 427 747 454 737 483 C732 501 721 511 702 504" />
+            <path d="M365 463 Q351 458 355 481 M715 463 Q729 458 725 481" fill="none" stroke="#cf8468" stroke-width="4" />
+          </g>
+          <path id="female-face" class="female-skin avatar-skin-material" d="M540 245 C450 239 397 295 379 372 L368 466 C365 509 371 552 391 579 C409 603 436 616 478 621 L602 621 C644 616 671 603 689 579 C709 552 715 509 712 466 L701 372 C683 295 630 239 540 245 Z" />
+          <g id="female-face-details" aria-hidden="true"></g>
+
+          <g id="female-brow-left" class="female-hair">
+            <path d="M393 355 Q437 327 486 339 Q493 348 493 359 Q437 350 393 369 Z" stroke-width="3.5" />
+          </g>
+          <g id="female-brow-right" class="female-hair">
+            <path d="M687 355 Q643 327 594 339 Q587 348 587 359 Q643 350 687 369 Z" stroke-width="3.5" />
+          </g>
+          <g id="female-eye-left">
+            <g id="female-eye-shell-left" class="avatar-eye-white-material">
+              <ellipse cx="446" cy="434" rx="56" ry="70" fill="#ffffff" stroke-width="4" />
+              <path d="M392 450 L382 445 M391 466 L381 466" fill="none" stroke-width="3.5" />
+            </g>
+            <g id="female-pupil-left" class="avatar-iris-material">
+              <ellipse cx="446" cy="440" rx="27" ry="36" fill="var(--iris-color, #222425)" stroke="none" />
+              <ellipse cx="446" cy="442" rx="18" ry="26" fill="#222425" stroke="none" />
+              <ellipse cx="435" cy="419" rx="11" ry="14" fill="#ffffff" stroke="none" />
+              <circle cx="457" cy="456" r="4" fill="#ffffff" stroke="none" />
+            </g>
+          </g>
+          <g id="female-eye-right">
+            <g id="female-eye-shell-right" class="avatar-eye-white-material">
+              <ellipse cx="634" cy="434" rx="56" ry="70" fill="#ffffff" stroke-width="4" />
+              <path d="M688 450 L698 445 M689 466 L699 466" fill="none" stroke-width="3.5" />
+            </g>
+            <g id="female-pupil-right" class="avatar-iris-material">
+              <ellipse cx="634" cy="440" rx="27" ry="36" fill="var(--iris-color, #222425)" stroke="none" />
+              <ellipse cx="634" cy="442" rx="18" ry="26" fill="#222425" stroke="none" />
+              <ellipse cx="623" cy="419" rx="11" ry="14" fill="#ffffff" stroke="none" />
+              <circle cx="645" cy="456" r="4" fill="#ffffff" stroke="none" />
+            </g>
+          </g>
+          <g id="female-cheeks">
+            <ellipse cx="411" cy="525" rx="30" ry="12" fill="#de7e78" opacity="0.22" stroke="none" />
+            <ellipse cx="669" cy="525" rx="30" ry="12" fill="#de7e78" opacity="0.22" stroke="none" />
+          </g>
+          <path id="female-nose" d="M520 511 Q540 538 560 511" fill="none" stroke="var(--skin-shadow, #ca805b)" stroke-width="5.2" />
+
+          <g id="female-front-hair" class="female-hair">
+            <path d="M540 177 C498 148 441 148 390 173 C315 209 286 282 278 361 L265 473 C307 475 350 451 373 417 C396 382 406 325 434 290 C464 252 506 242 540 246 Z" />
+            <path d="M540 177 C582 148 639 148 690 173 C765 209 794 282 802 361 L815 473 C773 475 730 451 707 417 C684 382 674 325 646 290 C616 252 574 242 540 246 Z" />
+            <path d="M540 179 L540 234" stroke="#302a28" stroke-width="4" />
+            <path d="M363 235 Q408 190 472 187 M608 187 Q672 190 717 235" stroke="#655044" stroke-width="4" fill="none" opacity="0.62" />
+          </g>
+          <g id="female-glasses" aria-hidden="true"></g>
+          <g id="female-hat-front" aria-hidden="true"></g>
+          <g id="female-earrings" aria-hidden="true">
+            <g id="female-earring-left" stroke="#302a28" stroke-width="3.2">
+              <path d="M360 489 L360 522" stroke="#f8ecd7" stroke-width="5" />
+              <circle cx="360" cy="529" r="4" fill="#f8ecd7" />
+              <path d="M360 541 L360 552" />
+              <path d="M353 553 L367 567 M367 553 L353 567" stroke="#f8ecd7" stroke-width="5.5" />
+            </g>
+            <g id="female-earring-right" stroke="#302a28" stroke-width="3.2">
+              <path d="M720 489 L720 522" stroke="#f8ecd7" stroke-width="5" />
+              <circle cx="720" cy="529" r="4" fill="#f8ecd7" />
+              <path d="M720 541 L720 552" />
+              <path d="M713 553 L727 567 M727 553 L713 567" stroke="#f8ecd7" stroke-width="5.5" />
+            </g>
+          </g>
+
+          <!-- Kept last inside the head so beards, muzzles, glasses and hats cannot obscure lip sync. -->
+          <g id="female-mouth" transform="translate(540 564)" stroke="none" data-mouth="X">
+            <g id="female-mouth-X" class="female-mouth-shape">
+              <path class="female-lip-line" d="M-43 -3 Q0 23 43 -3 M-44 -3 L-48 2" />
+            </g>
+            <g id="female-mouth-A" class="female-mouth-shape">
+              <path class="female-lip-line" d="M-39 0 Q0 6 39 0 M-18 9 Q0 13 18 9" />
+            </g>
+            <g id="female-mouth-B" class="female-mouth-shape">
+              <path class="female-mouth-open" d="M-41 -7 Q0 -17 41 -7 Q42 15 0 18 Q-42 15 -41 -7 Z" />
+              <path class="female-tooth" d="M-36 -5 Q0 -12 36 -5 L33 9 Q0 14 -33 9 Z" />
+              <path d="M-34 2 L34 2" stroke="#d2c5b7" stroke-width="1.5" />
+            </g>
+            <g id="female-mouth-C" class="female-mouth-shape">
+              <path class="female-mouth-open" d="M-41 -13 Q0 -21 41 -13 Q41 26 0 29 Q-41 26 -41 -13 Z" />
+              <path class="female-tooth" d="M-35 -11 Q0 -17 35 -11 L32 -2 Q0 2 -32 -2 Z" />
+              <path class="female-tongue" d="M-23 23 Q0 11 23 23 Q0 31 -23 23 Z" />
+            </g>
+            <g id="female-mouth-D" class="female-mouth-shape">
+              <path class="female-mouth-open" d="M-35 -25 Q0 -35 35 -25 C48 9 30 42 0 43 C-30 42 -48 9 -35 -25 Z" />
+              <path class="female-tooth" d="M-30 -23 Q0 -30 30 -23 L32 -13 Q0 -6 -32 -13 Z" />
+              <path class="female-tongue" d="M-24 32 Q0 15 24 32 Q0 47 -24 32 Z" />
+            </g>
+            <g id="female-mouth-E" class="female-mouth-shape">
+              <ellipse class="female-mouth-open" cx="0" cy="6" rx="28" ry="26" />
+              <path class="female-tongue" d="M-15 24 Q0 15 15 24 Q0 34 -15 24 Z" />
+            </g>
+            <g id="female-mouth-F" class="female-mouth-shape">
+              <ellipse fill="#df917c" cx="0" cy="4" rx="23" ry="23" />
+              <ellipse class="female-mouth-open" cx="0" cy="4" rx="15" ry="17" />
+            </g>
+            <g id="female-mouth-G" class="female-mouth-shape">
+              <path class="female-mouth-open" d="M-35 -10 Q0 -19 35 -10 L28 10 Q0 25 -28 10 Z" />
+              <path class="female-tooth" d="M-30 -8 Q0 -14 30 -8 L24 7 Q0 12 -24 7 Z" />
+              <path d="M-25 12 Q0 21 25 12" stroke="#df917c" stroke-width="6" fill="none" />
+            </g>
+            <g id="female-mouth-H" class="female-mouth-shape">
+              <path class="female-mouth-open" d="M-36 -16 Q0 -24 36 -16 Q41 23 0 29 Q-41 23 -36 -16 Z" />
+              <path class="female-tooth" d="M-30 -14 Q0 -20 30 -14 L28 -6 L-28 -6 Z" />
+              <path class="female-tongue" d="M-17 23 L-13 -3 Q0 -13 13 -3 L17 23 Q0 30 -17 23 Z" />
+            </g>
+          </g>
+        </g>
+
+        <g id="female-left-upper" class="female-outline">
+          <path id="female-left-sleeve" class="female-hoodie avatar-cloth-material avatar-limb-depth" />
+          <g id="female-left-forearm" data-layout-allow-orbit="true">
+            <g id="female-left-wrist" class="avatar-limb-depth"><rect x="-12" y="-12" width="24" height="27" rx="9" class="female-skin avatar-skin-material" stroke="none" /></g>
+            <g id="female-left-hand"></g>
+            <g id="female-left-cuff" class="avatar-limb-depth"><rect x="-15" y="-7" width="30" height="14" rx="7" class="avatar-cloth-material" stroke="var(--cloth-shade)" stroke-width="1.5" /><path d="M-10 -2 Q0 2 10 -2" fill="none" stroke="var(--cloth-trim, #9d485b)" stroke-width="1.5" opacity=".65" /></g>
+          </g>
+        </g>
+        <g id="female-right-upper" class="female-outline">
+          <path id="female-right-sleeve" class="female-hoodie avatar-cloth-material avatar-limb-depth" />
+          <g id="female-right-forearm" data-layout-allow-orbit="true">
+            <g id="female-right-wrist" class="avatar-limb-depth"><rect x="-12" y="-12" width="24" height="27" rx="9" class="female-skin avatar-skin-material" stroke="none" /></g>
+            <g id="female-right-hand"></g>
+            <g id="female-right-cuff" class="avatar-limb-depth"><rect x="-15" y="-7" width="30" height="14" rx="7" class="avatar-cloth-material" stroke="var(--cloth-shade)" stroke-width="1.5" /><path d="M-10 -2 Q0 2 10 -2" fill="none" stroke="var(--cloth-trim, #9d485b)" stroke-width="1.5" opacity=".65" /></g>
+          </g>
+        </g>
+        </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const art = document.getElementById("presenter-art");
+      if (!globalThis.AvatarSpeech) {
+        throw new Error("Missing lip-sync data. Run npm run lipsync with your narration audio.");
+      }
+      const rig = globalThis.AvatarRig.mount(art, globalThis.AvatarSpeech, globalThis.AvatarRenderOptions ?? globalThis.AvatarSettings);
+      globalThis.AvatarPresenter = rig;
+      const clock = { time: 0 };
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(clock, { time: 0 }, {
+        time: Number(art.dataset.duration),
+        duration: Number(art.dataset.duration),
+        ease: "none",
+        onUpdate: function () { rig.render(clock.time); }
+      }, 0);
+      rig.render(0);
+      window.__timelines["presenter"] = tl;
+    })();
+  </script>
+</template>

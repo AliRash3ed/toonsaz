@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToonSaz — turn a script into a lip-synced cartoon video on your own PC</title>
+<meta name="description" content="Free local cartoon avatar studio for Windows. Write or record a script, pick one of 40 characters, export a lip-synced MP4 or WebM. No account, no API key.">
+<link rel="canonical" href="https://toonsaz.vercel.app/">
+<meta name="theme-color" content="#f7f5ef">
+<meta name="color-scheme" content="light">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToonSaz">
+<meta property="og:title" content="ToonSaz — a talking cartoon from your script">
+<meta property="og:description" content="40 characters, 17 gestures, 7 expressions. Lip-synced video rendered on your own machine. No account, no API key.">
+<meta property="og:url" content="https://toonsaz.vercel.app/">
+<meta property="og:image" content="https://toonsaz.vercel.app/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@AliRasheedBti">
+<meta name="twitter:title" content="ToonSaz — a talking cartoon from your script">
+<meta name="twitter:description" content="40 characters, 17 gestures, 7 expressions. Rendered locally. No account, no API key.">
+<meta name="twitter:image" content="https://toonsaz.vercel.app/assets/og.png">
+
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/style.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://toonsaz.vercel.app/#org",
+      "name": "ToonSaz",
+      "url": "https://toonsaz.vercel.app/",
+      "logo": "https://toonsaz.vercel.app/assets/icon-512.png",
+      "founder": { "@id": "https://toonsaz.vercel.app/#person" },
+      "sameAs": [
+        "https://github.com/AliRash3ed",
+        "https://www.linkedin.com/in/alirasheedbhatti",
+        "https://twitter.com/AliRasheedBti"
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://toonsaz.vercel.app/#person",
+      "name": "Ali Rasheed",
+      "url": "https://toonsaz.vercel.app/about",
+      "jobTitle": "Software developer",
+      "sameAs": [
+        "https://github.com/AliRash3ed",
+        "https://www.linkedin.com/in/alirasheedbhatti",
+        "https://twitter.com/AliRasheedBti",
+        "https://www.instagram.com/this_is_ali_r"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://toonsaz.vercel.app/#site",
+      "url": "https://toonsaz.vercel.app/",
+      "name": "ToonSaz",
+      "inLanguage": "en",
+      "publisher": { "@id": "https://toonsaz.vercel.app/#org" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://toonsaz.vercel.app/#app",
+      "name": "ToonSaz",
+      "alternateName": "ToonSaz Avatar Studio",
+      "applicationCategory": "MultimediaApplication",
+      "applicationSubCategory": "Cartoon avatar video generator",
+      "operatingSystem": "Windows 10, Windows 11",
+      "url": "https://toonsaz.vercel.app/download",
+      "downloadUrl": "https://toonsaz.vercel.app/download",
+      "softwareVersion": "1.0.0",
+      "license": "https://github.com/AliRash3ed/toonsaz/blob/main/LICENSE",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "40 built-in cartoon characters",
+        "17 gesture poses and 7 facial expressions",
+        "Rhubarb lip sync from a real recording",
+        "Edge TTS script-to-voice, or import your own audio",
+        "Roman Urdu, Hinglish and Urdu script to Devanagari converter",
+        "1080p MP4 and transparent WebM export",
+        "Runs locally on the creator's own computer"
+      ],
+      "author": { "@id": "https://toonsaz.vercel.app/#person" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://toonsaz.vercel.app/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is ToonSaz free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The app is free and open source, there is no account, no subscription and no credit card. You download it, run it on your own computer, and keep every video you make." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need an API key to use it?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Rendering, lip sync, gestures, expressions and export all work without a key. Two optional features can use one: OpenRouter for AI gesture analysis, and a Hugging Face token for OmniVoice cloning. Both are off unless you add credentials yourself." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ToonSaz work offline?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Mostly. Rendering, lip sync, gesture planning and export run entirely offline. The built-in Edge TTS voice needs an internet connection because it uses Microsoft's speech endpoint. If you import your own recording instead, the whole job runs offline." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which languages are supported?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Any language with an Edge TTS voice, including Urdu, Hindi, English, Spanish, Arabic, Bengali and more. The editor also converts Roman Urdu, Hinglish and Urdu script into Devanagari so a Hindi voice pronounces the script correctly." }
+        },
+        {
+          "@type": "Question",
+          "name": "What do I need installed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 or 11, Node.js 20 or newer, Python 3.11 or newer, and ffmpeg on your PATH. The launcher checks the server for you and opens the editor in your browser." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it upload my video or my voice?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Files stay on your machine. The only outbound requests are the ones you trigger: Edge TTS speech synthesis, an optional OpenRouter cue request, or an optional OmniVoice clone call." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use the videos commercially?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The ToonSaz source is MIT licensed and the character art ships with the project, so you can publish the videos you make. Check the licences of the tools it calls: edge-tts is GPL-3.0 and ffmpeg builds differ, so ship or redistribute them with care." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this a deepfake tool?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. ToonSaz animates illustrated characters, not photographs of real people. Voice cloning is optional, requires a consent checkbox, and only works with a reference clip you own or have permission to use." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="ToonSaz home">
+      <span class="mark" aria-hidden="true">t<span>.</span></span>
+      <span class="name">TOON<br>SAZ</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#characters">Characters</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/docs">Docs</a>
+    </nav>
+    <a class="header-cta" href="/download">Download</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Local cartoon avatar studio</p>
+      <h1>Write a script. Get a <em>talking cartoon</em>.</h1>
+      <p class="lede">ToonSaz turns a script or a voice recording into a lip-synced cartoon video. Forty characters, seventeen gestures, three aspect ratios — rendered on your own Windows machine.</p>
+      <div class="hero-actions">
+        <a class="button" href="/download">Download for Windows</a>
+        <a class="button ghost" href="#how">See how it works</a>
+      </div>
+      <ul class="fact-row">
+        <li>No account</li>
+        <li>No API key</li>
+        <li>No upload</li>
+        <li>1080p MP4</li>
+      </ul>
+    </div>
+    <figure class="hero-shot">
+      <img src="/assets/editor.png" width="1440" height="1180" alt="The ToonSaz editor: a cast strip of cartoon characters, a live avatar preview, gesture controls and a voice panel." fetchpriority="high">
+      <figcaption>The editor, running locally on port 3010</figcaption>
+    </figure>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow">Three passes, one pipeline</p>
+    <h2>It reads the words, then it performs them.</h2>
+    <p class="lede">Every job runs the same deterministic path. Nothing is guessed at render time, so the same script and the same audio always produce the same video.</p>
+
+    <div class="steps" style="margin-top:44px">
+      <article class="step">
+        <span class="n">01</span>
+        <h3>Voice</h3>
+        <p>Record yourself, import an audio file, or type a script and let Edge TTS speak it. Urdu, Hindi, English, Spanish and every other voice in the catalogue.</p>
+      </article>
+      <article class="step">
+        <span class="n">02</span>
+        <h3>Sync</h3>
+        <p>Faster-Whisper times every word. Rhubarb turns the audio into mouth shapes. The jaw and lips follow the actual waveform, not a timer.</p>
+      </article>
+      <article class="step">
+        <span class="n">03</span>
+        <h3>Perform</h3>
+        <p>A rule engine reads the transcript and picks a gesture and an expression per phrase, capped at five seconds so nothing holds too long.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">What you actually get</p>
+    <h2>Small tool, complete job.</h2>
+    <div class="feature-grid" style="margin-top:36px">
+      <article class="feature">
+        <span class="tag">Cast</span>
+        <h3>40 characters</h3>
+        <p>Hand-drawn vector rigs with swappable outfits, glasses, headwear, earrings and neckwear. Three body styles, from flat illustration to clay.</p>
+      </article>
+      <article class="feature">
+        <span class="tag">Performance</span>
+        <h3>17 gestures, 7 expressions</h3>
+        <p>Point up, count on fingers, sweep, pinch, hold a hand to the chest. Poses are rigged, not swapped images, so they move.</p>
+      </article>
+      <article class="feature">
+        <span class="tag">Language</span>
+        <h3>Devanagari converter</h3>
+        <p>Paste Roman Urdu, Hinglish or Urdu script and get Devanagari a Hindi voice can actually pronounce. Proofread it, then build.</p>
+      </article>
+      <article class="feature">
+        <span class="tag">Layout</span>
+        <h3>Split screen</h3>
+        <p>Put footage above the avatar in 9:16, or beside it in 16:9. Import an MP4, WebM, MOV, MKV, M4V or AVI and it is normalised for you.</p>
+      </article>
+      <article class="feature">
+        <span class="tag">Output</span>
+        <h3>MP4 or alpha WebM</h3>
+        <p>1080p at 30 fps. Export an opaque MP4 for publishing, or a WebM with a transparent background for editing on top of your own footage.</p>
+      </article>
+      <article class="feature">
+        <span class="tag">Privacy</span>
+        <h3>Your files stay put</h3>
+        <p>The server binds to 127.0.0.1 and refuses foreign origins. Uploads, transcripts and renders never leave the machine.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="characters">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">The cast</p>
+      <h2>Forty faces, one stage.</h2>
+      <p class="lede">Each character is a real SVG rig with a jaw, eyes, brows and two arms. Change the outfit, add a beanie, put them in a blazer — the art is yours to dress.</p>
+      <ul class="checklist">
+        <li>Human, cartoon and clay body styles</li>
+        <li>Wardrobe: hoodie, crewneck, blazer, sweater, armour, cloak</li>
+        <li>Accessories: caps, beanies, crowns, helmets, glasses, earrings</li>
+        <li>Backgrounds: paper grids, solid colour, chroma green, transparent</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <img src="/assets/editor-cast.png" width="1440" height="290" alt="Six of the forty ToonSaz characters shown as portrait cards: Sana, Ayan, Zain, Noor, Squircle and CSS Person." loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Built for Urdu and Hindi creators</p>
+    <h2>The part most tools skip.</h2>
+    <p class="lede">Hindi voices only read Devanagari. If you write <em>“assalamualaikum dosto”</em> or <em>“السلام علیکم دوستو”</em>, a Hindi voice mangles it. ToonSaz converts either one before it speaks.</p>
+
+    <div class="script-demo" style="margin-top:34px">
+      <div>
+        <span class="label">Your script</span>
+        <p lang="ur" dir="rtl">السلام علیکم دوستو، آج ہم بات کریں گے۔ یہ ٹیکنالوجی بہت تیزی سے بدل رہی ہے۔</p>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div>
+        <span class="label">What the voice reads</span>
+        <p class="devanagari" lang="hi">अस्सलाम अलैकुम दोस्तो, आज हम बात करेंगे. यह टेक्नोलॉजी बहुत तेज़ी से बदल रही है.</p>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:56px">
+      <div class="split-media">
+        <img src="/assets/editor-devanagari.png" width="1440" height="720" alt="The ToonSaz script panel showing a Devanagari preview with Use this script, Copy and Dismiss buttons." loading="lazy">
+      </div>
+      <div>
+        <h3 style="font-size:26px">A preview you can reject.</h3>
+        <p class="muted" style="font-size:14.5px;line-height:1.68">Transliteration is a draft, not a verdict. The converter shows its work next to your text and waits. If a word is wrong, you fix it before anything is rendered — and the timed transcript is cleared so gesture timing is recalculated instead of silently going stale.</p>
+        <ul class="checklist">
+          <li>Roman Urdu, Hinglish and Hindi transliteration</li>
+          <li>Urdu script with aspiration and nasal marks handled</li>
+          <li>English prose is detected and left alone</li>
+          <li>Brand names and acronyms stay readable</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="limits">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Straight answers</p>
+      <h2>What it does not do.</h2>
+      <p class="lede">A tool is easier to trust when it tells you where the edges are.</p>
+    </div>
+    <div>
+      <ul class="checklist no">
+        <li>It does not animate photographs of real people. These are illustrated characters, not deepfakes.</li>
+        <li>It does not build a custom character from your drawing yet. You get the forty that ship with it.</li>
+        <li>The built-in voice needs internet. Edge TTS is Microsoft's endpoint, not an offline model — import your own audio for a fully offline run.</li>
+        <li>There is no macOS or Linux installer. The scripts are portable, but only Windows is packaged.</li>
+        <li>There is no cloud render, no team workspace and no timeline editor. One presenter, one script, one export.</li>
+        <li>Urdu script to Devanagari leans on a dictionary. Uncommon words may need a proofread.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <p class="eyebrow">Questions people actually ask</p>
+    <h2>Before you download.</h2>
+    <div class="faq" style="margin-top:34px">
+      <details open>
+        <summary>Is ToonSaz free?</summary>
+        <p>Yes. Free and open source, no account, no subscription, no credit card. You download it, run it on your own computer, and keep every video you make.</p>
+      </details>
+      <details>
+        <summary>Do I need an API key?</summary>
+        <p>No. Rendering, lip sync, gestures, expressions and export all work without one. Two optional features can use a key: OpenRouter for AI gesture analysis, and a Hugging Face token for OmniVoice cloning. Both stay off unless you add credentials yourself.</p>
+      </details>
+      <details>
+        <summary>Does it work offline?</summary>
+        <p>Mostly. Rendering, lip sync, gesture planning and export run entirely offline. The built-in Edge TTS voice needs a connection because it uses Microsoft's speech endpoint. Import your own recording and the whole job runs offline.</p>
+      </details>
+      <details>
+        <summary>Which languages can it speak?</summary>
+        <p>Any language with an Edge TTS voice — Urdu, Hindi, English, Spanish, Arabic, Bengali, French, German, Japanese, Korean, Portuguese, Russian, Italian and more. The Devanagari converter covers Roman Urdu, Hinglish and Urdu script.</p>
+      </details>
+      <details>
+        <summary>What do I need installed?</summary>
+        <p>Windows 10 or 11, Node.js 20 or newer, Python 3.11 or newer, and ffmpeg on your PATH. The launcher starts the server and opens the editor in your browser.</p>
+      </details>
+      <details>
+        <summary>Does it upload my video or my voice?</summary>
+        <p>No. Files stay on your machine, and the server only listens on 127.0.0.1. The only outbound requests are the ones you trigger: speech synthesis, an optional cue request, or an optional voice clone call.</p>
+      </details>
+      <details>
+        <summary>Can I publish the videos commercially?</summary>
+        <p>The ToonSaz source is MIT licensed and the character art ships with the project, so you can publish what you make. Check the licences of the tools it calls — <code>edge-tts</code> is GPL-3.0 and ffmpeg builds differ — before you redistribute those binaries yourself.</p>
+      </details>
+      <details>
+        <summary>How long does a render take?</summary>
+        <p>A one-minute 1080p clip typically renders in well under a minute on a normal laptop. The slow part is the first run, when Whisper downloads its model.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <p class="eyebrow">Ready when you are</p>
+    <h2>Your first cartoon is one script away.</h2>
+    <p class="lede">No sign-up screen, no watermark, no render queue. Just a folder on your PC and a presenter waiting for lines.</p>
+    <div class="hero-actions">
+      <a class="button" href="/download">Download ToonSaz</a>
+      <a class="button ghost" href="/docs">Read the setup guide</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="wordmark" href="/" aria-label="ToonSaz home" style="margin-bottom:14px">
+          <span class="mark" aria-hidden="true">t<span>.</span></span>
+          <span class="name">TOON<br>SAZ</span>
+        </a>
+        <p class="small muted" style="max-width:34ch;margin:12px 0 0">A local cartoon avatar studio for people who write in Urdu, Hindi and English — built by Ali Rasheed.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/download">Download</a></li>
+          <li><a href="/docs">Documentation</a></li>
+          <li><a href="/changelog">Changelog</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/AliRash3ed/toonsaz" rel="noopener">GitHub</a></li>
+          <li><a href="/about">About the author</a></li>
+          <li><a href="/privacy">Privacy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Elsewhere</h4>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/alirasheedbhatti" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://twitter.com/AliRasheedBti" rel="noopener">Twitter</a></li>
+          <li><a href="https://www.instagram.com/this_is_ali_r" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-note">
+      <span>© <span id="year">2026</span> Ali Rasheed. Source under the MIT licence.</span>
+      <span>Made for Windows. No trackers on this page.</span>
+    </div>
+  </div>
+</footer>
+
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

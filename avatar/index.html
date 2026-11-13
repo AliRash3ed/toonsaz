@@ -1,0 +1,151 @@
+﻿<!doctype html>
+<html
+  lang="en"
+  data-resolution="square"
+  data-composition-variables='[
+    {"id":"avatar","type":"enum","label":"Avatar","default":"saved","options":["saved","sana","ayan","zain","noor","squircle","css-person","bearded-man","curly-boy","cap-guy","pompadour-guy","soft-bust","blond-swept","clay","homer","bart","king","guard","inquisitor","heart","mouse","kawaii-cat","neo","luna","koda","ayan-copy","aarav","forma-zara","forma-barnaby","forma-tariq","forma-kabir","forma-devon","forma-elena","forma-marcus","forma-mina","forma-kenji","forma-mei","forma-jinwoo","forma-priya","forma-haruto","forma-zainab","forma-arthur","forma-liam","forma-oliver","forma-noah","forma-chloe","forma-malik","forma-harper","forma-maya","forma-amara"]},
+    {"id":"background","type":"enum","label":"Background","default":"saved","options":["saved","white-grid","cream-grid","sky-grid","night-grid","solid-white","solid-black","chroma-green","transparent","custom"]},
+    {"id":"layout","type":"enum","label":"Layout","default":"saved","options":["saved","solo","split"]},
+    {"id":"outfit","type":"enum","label":"Outfit","default":"saved","options":["saved","profile","hoodie","crewneck","blazer","sweater","tshirt","royal","armor","cloak"]},
+    {"id":"glasses","type":"enum","label":"Glasses","default":"saved","options":["saved","none","round","square","sunglasses"]},
+    {"id":"hat","type":"enum","label":"Headwear","default":"saved","options":["saved","none","cap","backwards-cap","beanie","crown","helmet","inquisitor"]},
+    {"id":"earrings","type":"enum","label":"Earrings","default":"saved","options":["saved","profile","none","hoops","studs","drops"]},
+    {"id":"neckwear","type":"enum","label":"Neckwear","default":"saved","options":["saved","profile","none","pearls","chain","tie"]},
+    {"id":"gesture","type":"enum","label":"Gesture","default":"saved","options":["saved","auto","rest","open-palms","point-up","point-front","empathy","directional","stop","chop","steeple","count-1","count-2","count-3","scale-wide","scale-small","pinch","thinking","wave"]},
+    {"id":"emotion","type":"enum","label":"Emotion","default":"saved","options":["saved","auto","neutral","warm","sad","shock","focused","curious","confident"]},
+    {"id":"custom-palette","type":"boolean","label":"Override avatar colors","default":false},
+    {"id":"hoodie-color","type":"color","label":"Hoodie","default":"#803447"},
+    {"id":"hair-color","type":"color","label":"Hair","default":"#49382f"},
+    {"id":"skin-color","type":"color","label":"Skin","default":"#f2a582"}
+  ]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ToonSaz Studio / Presenter Composition</title>
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <script src="assets/lipsync-data.js"></script>
+    <script src="assets/avatar-settings.js"></script>
+    <script src="assets/avatar-forma.js"></script>
+    <script src="assets/avatar-profiles.js"></script>
+    <script src="assets/gesture-engine.js"></script>
+    <script src="assets/avatar-rig.js"></script>
+    <style>
+      :root {
+        --hoodie-color: #803447;
+        --hair-color: #49382f;
+        --skin-color: #f2a582;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: transparent;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      #source-video {
+        inset: auto;
+        left: 54px;
+        top: 54px;
+        width: 972px;
+        height: 410px;
+        object-fit: contain;
+        border-radius: 18px;
+        background: #101622;
+        z-index: 2;
+      }
+      #root[data-aspect-ratio="9:16"] #source-video {
+        left: 54px;
+        top: 58px;
+        width: 972px;
+        height: 760px;
+      }
+      #root[data-aspect-ratio="16:9"] #source-video {
+        left: 72px;
+        top: 54px;
+        width: 850px;
+        height: 972px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-duration="41.96666666666667"
+      data-width="1080"
+      data-height="1080"
+      data-fps="30"
+      data-aspect-ratio="1:1"
+    >
+      <div
+        id="presenter"
+        class="clip"
+        data-composition-id="presenter"
+        data-composition-src="compositions/presenter.html"
+        data-start="0"
+        data-duration="41.96666666666667"
+        data-track-index="0"
+        data-track-kind="graphics"
+        data-width="1080"
+        data-height="1080"
+        data-label="Script-responsive avatar" data-aspect-ratio="1:1"></div>
+      <video
+        id="source-video"
+        class="clip"
+        src="assets/source-video.mp4"
+        muted
+        playsinline
+        data-start="0"
+        data-duration="41.96666666666667"
+        data-media-start="0"
+        data-hidden="true"
+        data-track-index="1"
+        data-label="Upper source video"
+      ></video>
+      <audio
+        id="narrator"
+        class="clip"
+        src="assets/narration.wav"
+        data-start="0"
+        data-duration="40.71"
+        data-track-index="2"
+        data-volume="1"
+        data-label="Rhubarb-synced narration"
+      ></audio>
+    </div>
+    <script>
+      const vars = window.__hyperframes.getVariables();
+      const root = document.querySelector('[data-composition-id="main"]');
+      const options = { ...globalThis.AvatarSettings };
+      for (const id of ["avatar", "background", "layout", "outfit", "glasses", "hat", "earrings", "neckwear", "gesture", "emotion"]) {
+        if (vars[id] && vars[id] !== "saved") options[id] = vars[id];
+      }
+      if (vars["custom-palette"]) options.palette = {
+        cloth: vars["hoodie-color"], hair: vars["hair-color"], skin: vars["skin-color"]
+      };
+      globalThis.AvatarRenderOptions = options;
+      globalThis.AvatarPresenter?.setOptions(options);
+      const video = document.getElementById("source-video");
+      video.dataset.hidden = String(options.layout !== "split" || !options.video?.enabled);
+      root.dataset.layout = options.layout;
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

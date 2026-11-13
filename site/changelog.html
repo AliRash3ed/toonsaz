@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog — ToonSaz</title>
+<meta name="description" content="What changed in ToonSaz, release by release. Gesture aliases for Urdu and Hindi, the Devanagari converter, and the Forma2D character set.">
+<link rel="canonical" href="https://toonsaz.vercel.app/changelog">
+<meta name="theme-color" content="#f7f5ef">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ToonSaz">
+<meta property="og:title" content="ToonSaz changelog">
+<meta property="og:description" content="Release notes, plainly written.">
+<meta property="og:url" content="https://toonsaz.vercel.app/changelog">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="ToonSaz home"><span class="mark" aria-hidden="true">t<span>.</span></span><span class="name">TOON<br>SAZ</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#characters">Characters</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/docs">Docs</a>
+    </nav>
+    <a class="header-cta" href="/download">Download</a>
+  </div>
+</header>
+
+<main>
+<div class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Release notes</p>
+    <h1>Changelog</h1>
+    <p class="lede">Only the changes a creator would notice, plus the bugs that were embarrassing enough to write down.</p>
+  </div>
+</div>
+
+<section style="padding-top:36px">
+  <div class="wrap">
+    <div class="changelog">
+
+      <article>
+        <time datetime="2026-11-13">13 Nov 2026</time>
+        <div>
+          <h3>1.0.0 — the Urdu and Hindi release</h3>
+          <ul>
+            <li><strong>Devanagari converter.</strong> Roman Urdu, Hinglish and Urdu script now convert to Devanagari in the script panel, with a preview you can reject. Hindi voices finally pronounce the script instead of guessing at Latin letters.</li>
+            <li><strong>Gesture aliases for Urdu and Devanagari.</strong> The keyword rules were Roman-only, so a script written in <span lang="ur" dir="rtl">اردو</span> fell back to generic rotation. Urdu script went from 4 segments to 8 on the same paragraph, Hindi from 5 to 7.</li>
+            <li><strong>The Arabic question mark now counts.</strong> <code>؟</code> (U+061F) was ignored by an ASCII-only check, so every Urdu question missed its thinking cue.</li>
+            <li><strong>Combining marks survive tokenising.</strong> Devanagari matras and Urdu diacritics were being stripped, turning <span lang="hi">नमस्ते</span> into <span lang="hi">नमसत</span> before any rule saw it.</li>
+            <li><strong>23 new characters.</strong> The Forma2D set joins the original rigs: 49 registered, 40 shown in the editor, 36 curated for batch jobs.</li>
+            <li><strong>125 tests.</strong> Added multilingual gesture regressions, transliteration tests and cross-file registration guards so an avatar cannot be half-wired.</li>
+            <li><strong>Renamed to ToonSaz.</strong> Same tool, a name people can spell.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article>
+        <time datetime="2026-10-02">2 Oct 2026</time>
+        <div>
+          <h3>0.9 — split layout and alpha export</h3>
+          <ul>
+            <li>9:16 split puts footage above the avatar; 16:9 split puts it beside.</li>
+            <li>Transparent background plus WebM export with an alpha channel.</li>
+            <li>Custom background upload, normalised to PNG, JPEG or WebP.</li>
+            <li>Placement controls: X, Y and scale, with a reset.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article>
+        <time datetime="2026-09-18">18 Sep 2026</time>
+        <div>
+          <h3>0.8 — the cue track</h3>
+          <ul>
+            <li>Editable gesture and expression lanes under the stage. Manual cues override the planner until the next rebuild.</li>
+            <li>Forced variety: no two adjacent segments may share both a pose and an expression.</li>
+            <li>Silent rehearsal mode — preview gestures with no generated speech.</li>
+            <li>Timed transcript import from SRT, VTT, Whisper JSON or plain segments.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article>
+        <time datetime="2026-08-29">29 Aug 2026</time>
+        <div>
+          <h3>0.7 — first working pipeline</h3>
+          <ul>
+            <li>Rhubarb lip sync from a real recording, driven by Faster-Whisper word timings.</li>
+            <li>Edge TTS script-to-voice with the live Microsoft voice catalogue.</li>
+            <li>Forty-pose rig with a jaw, eyes, brows and two arms.</li>
+            <li>Local server on port 3010 with a host check and origin guard.</li>
+          </ul>
+        </div>
+      </article>
+
+    </div>
+
+    <p class="small muted" style="margin-top:28px">The full commit history lives on <a href="https://github.com/AliRash3ed/toonsaz/commits/main" rel="noopener">GitHub</a>.</p>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-note" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Ali Rasheed. Source under the MIT licence.</span>
+      <span><a href="/privacy">Privacy</a> · <a href="/about">About</a> · <a href="/changelog">Changelog</a></span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

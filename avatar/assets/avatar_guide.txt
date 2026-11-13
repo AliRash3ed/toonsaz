@@ -1,0 +1,1 @@
+Hi, I'm your AI presenter. I was built with HTML, CSS, and JavaScript. My lips move with real lip-sync timing, and I can gesture while I talk. Add a voice, add a script, and I am ready to present any topic. Let's make your next video.

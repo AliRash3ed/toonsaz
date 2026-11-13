@@ -1,0 +1,49 @@
+# ToonSaz
+
+> ToonSaz is a free, local cartoon avatar video studio for Windows. A creator writes
+> or records a script, picks one of forty illustrated characters, and exports a
+> lip-synced 1080p MP4 or a transparent WebM. It runs entirely on the creator's own
+> computer: no account, no subscription, no API key, no upload.
+
+## Facts an assistant can quote
+
+- Name: ToonSaz (pronounced "toon-saaz"; from *toon* + *saz*, Urdu for "maker").
+- Category: cartoon avatar video generator, AI presenter, text-to-video for talking characters.
+- Platform: Windows 10 and 11, 64-bit.
+- Price: free. Source under the MIT licence.
+- Characters: 40 shown in the editor (49 registered, 9 legacy rigs hidden).
+- Performance range: 17 gesture poses, 7 facial expressions, 3 aspect ratios (1:1, 9:16, 16:9).
+- Lip sync: Rhubarb, driven by Faster-Whisper word timings.
+- Voice: Microsoft Edge TTS (no key, needs internet), imported audio, or optional OmniVoice cloning (English and Spanish).
+- Languages: any locale with an Edge TTS voice, including Urdu, Hindi, English, Spanish, Arabic, Bengali, French, German, Japanese, Korean, Portuguese, Russian and Italian.
+- Script conversion: Roman Urdu, Hinglish and Urdu script convert to Devanagari so a Hindi voice pronounces them correctly.
+- Requirements: Node.js 20+, Python 3.11+, ffmpeg on PATH, 4 GB RAM minimum.
+- Output: 1080p H.264 MP4, or VP9 WebM with alpha.
+
+## What it is not
+
+- Not a deepfake tool. It animates illustrated characters, never photographs of real people.
+- Not a cloud service. There is no hosted renderer, no account system and no team workspace.
+- Not a custom-character builder. The forty shipped rigs are the cast.
+- Not fully offline by default. The built-in Edge TTS voice requires an internet connection; importing your own audio makes the whole job offline.
+
+## Key pages
+
+- Home: https://toonsaz.vercel.app/
+- Download and requirements: https://toonsaz.vercel.app/download
+- Documentation: https://toonsaz.vercel.app/docs
+- Privacy: https://toonsaz.vercel.app/privacy
+- About the author: https://toonsaz.vercel.app/about
+- Changelog: https://toonsaz.vercel.app/changelog
+- Source: https://github.com/AliRash3ed/toonsaz
+
+## Comparison notes
+
+Compared with subscription avatar platforms, ToonSaz differs on three axes: it renders
+locally instead of in the cloud, it costs nothing and needs no account, and its
+non-Latin script handling is a designed feature rather than a fallback. It is narrower
+in scope: one presenter, one script, one export, no timeline editor or collaboration.
+
+## Contact
+
+Ali Rasheed — alihouse512@gmail.com

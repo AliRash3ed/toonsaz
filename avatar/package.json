@@ -1,0 +1,19 @@
+{
+  "name": "avatar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.9.30 preview",
+    "check": "npx --yes hyperframes@0.9.30 check",
+    "render": "npx --yes hyperframes@0.9.30 render",
+    "publish": "npx --yes hyperframes@0.9.30 publish",
+    "lipsync": "node scripts/lipsync.mjs",
+    "test": "node --test scripts/*.test.mjs",
+    "snapshot": "npx --yes hyperframes@0.9.30 snapshot",
+    "library": "node --env-file-if-exists=.env.local scripts/library-server.mjs",
+    "avatar-job": "node scripts/avatar-job.mjs"
+  },
+  "dependencies": {
+    "gsap": "3.15.0"
+  }
+}

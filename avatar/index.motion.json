@@ -1,0 +1,9 @@
+{
+  "assertions": [
+    { "kind": "appearsBy", "selector": "#female-illustration", "bySec": 0.05 },
+    { "kind": "staysInFrame", "selector": "#female-head" },
+    { "kind": "staysInFrame", "selector": "#female-left-hand" },
+    { "kind": "staysInFrame", "selector": "#female-right-hand" },
+    { "kind": "keepsMoving", "withinSelector": "#presenter-art", "maxStaticSec": 1 }
+  ]
+}

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download ToonSaz for Windows — free local cartoon avatar studio</title>
+<meta name="description" content="Download ToonSaz: a free cartoon avatar video tool for Windows 10 and 11. Requires Node.js 20+, Python 3.11+ and ffmpeg. No account, no API key, no watermark.">
+<link rel="canonical" href="https://toonsaz.vercel.app/download">
+<meta name="theme-color" content="#f7f5ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToonSaz">
+<meta property="og:title" content="Download ToonSaz for Windows">
+<meta property="og:description" content="Free, local, no account. Node 20+, Python 3.11+ and ffmpeg is all it asks for.">
+<meta property="og:url" content="https://toonsaz.vercel.app/download">
+<meta property="og:image" content="https://toonsaz.vercel.app/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@AliRasheedBti">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "ToonSaz", "item": "https://toonsaz.vercel.app/" },
+    { "@type": "ListItem", "position": 2, "name": "Download", "item": "https://toonsaz.vercel.app/download" }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="ToonSaz home"><span class="mark" aria-hidden="true">t<span>.</span></span><span class="name">TOON<br>SAZ</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#characters">Characters</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/docs">Docs</a>
+    </nav>
+    <a class="header-cta" href="/download" aria-current="page">Download</a>
+  </div>
+</header>
+
+<main>
+<div class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Windows 10 / 11 · free · MIT source</p>
+    <h1>Download ToonSaz</h1>
+    <p class="lede">One folder, one launcher, no sign-up. The editor opens in your browser and talks only to a server on your own machine.</p>
+  </div>
+</div>
+
+<section style="padding-top:40px">
+  <div class="wrap">
+    <div class="card-grid">
+      <article class="card">
+        <span class="meta">Available now</span>
+        <h3>Source download</h3>
+        <p>Grab the repository as a ZIP, unzip it anywhere, and run the launcher. This is the path that works today.</p>
+        <a class="button" href="https://github.com/AliRash3ed/toonsaz/archive/refs/heads/main.zip">Download ZIP</a>
+        <a class="button ghost" href="https://github.com/AliRash3ed/toonsaz" rel="noopener">View on GitHub</a>
+      </article>
+      <article class="card">
+        <span class="meta">In progress</span>
+        <h3>One-click installer</h3>
+        <p>A signed <code>ToonSaz-Setup.exe</code> that bundles Node, Python and ffmpeg so nothing else needs installing. Not published yet — the source path below is the supported route.</p>
+        <a class="button ghost" href="https://github.com/AliRash3ed/toonsaz/releases" rel="noopener">Watch releases</a>
+      </article>
+    </div>
+
+    <div class="note">
+      <strong>Why a source download first?</strong> A self-contained installer has to bundle a Python runtime, ffmpeg and a headless browser — roughly 1.2 GB — and each of those has its own licence. Shipping it half-tested would waste your afternoon. The source route runs the exact same code.
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:8px">
+  <div class="wrap">
+    <h2>What the machine needs</h2>
+    <table class="spec">
+      <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Windows</td><td>10 or 11, 64-bit. The scripts themselves are portable; only Windows is packaged.</td></tr>
+        <tr><td>Node.js</td><td>20 or newer, on your PATH. <code>node --version</code> should answer.</td></tr>
+        <tr><td>Python</td><td>3.11 or newer, on your PATH. <code>python --version</code> should answer.</td></tr>
+        <tr><td>ffmpeg</td><td>Any recent build on your PATH. <code>ffmpeg -version</code> should answer.</td></tr>
+        <tr><td>RAM</td><td>4 GB minimum, 8 GB comfortable. 12 GB if you keep Whisper loaded.</td></tr>
+        <tr><td>GPU</td><td>Not required. Everything runs on the CPU.</td></tr>
+        <tr><td>Disk</td><td>About 1.2 GB after the first run pulls the Whisper model and the headless browser.</td></tr>
+        <tr><td>Internet</td><td>Needed once for setup, and for Edge TTS. Import your own audio and rendering is fully offline.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section style="padding-top:8px">
+  <div class="wrap prose">
+    <h2>Install it in four commands</h2>
+    <p>Unzip the download, open a terminal in the folder, and run:</p>
+    <pre><code>cd avatar
+npm install
+pip install edge-tts faster-whisper
+npm run library</code></pre>
+    <p>Then open <a href="http://127.0.0.1:3010/library.html">http://127.0.0.1:3010/library.html</a>. On Windows you can skip the terminal entirely: double-click <code>Start_Avatar_Studio.bat</code> in the project root. It starts the server, waits for it, and opens the editor for you.</p>
+
+    <h3>If something does not start</h3>
+    <ul>
+      <li><strong>Port 3010 is busy.</strong> An older server is still running. Close the window it was started from, or end the <code>node</code> process, then relaunch.</li>
+      <li><strong>“Edge TTS dependencies are unavailable.”</strong> Run <code>pip install edge-tts</code> and restart the server. Rendering still works; only generated speech is blocked.</li>
+      <li><strong>No voices in the Edge tab.</strong> The catalogue is fetched live. Check your connection and reload.</li>
+      <li><strong>Rhubarb is missing.</strong> The lipsync tool lives in <code>tools/rhubarb</code>. Re-download the repository if that folder is empty.</li>
+      <li><strong>Renders are silent.</strong> Whisper needs to finish before the build starts. Watch the status line above the stage.</li>
+    </ul>
+
+    <h2>Optional credentials</h2>
+    <p>You do not need any of these. If you want them, copy <code>avatar/.env.example</code> to <code>avatar/.env.local</code> and fill in only what you use:</p>
+    <ul>
+      <li><code>OPENROUTER_API_KEY</code> — lets the cue planner ask a model for gesture suggestions. The local rule engine is the fallback and needs nothing.</li>
+      <li><code>OMNIVOICE_HF_TOKEN</code> — enables OmniVoice reference-voice cloning. English and Spanish only.</li>
+      <li><code>AVATAR_WHISPER_MODEL</code> — override the Whisper model size if the default is too slow or too small for your machine.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Stuck on a step?</h2>
+    <p class="lede">The setup guide covers the editor screen by screen, and the issue tracker is open.</p>
+    <div class="hero-actions">
+      <a class="button" href="/docs">Read the docs</a>
+      <a class="button ghost" href="https://github.com/AliRash3ed/toonsaz/issues" rel="noopener">Open an issue</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-note" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Ali Rasheed. Source under the MIT licence.</span>
+      <span><a href="/privacy">Privacy</a> · <a href="/about">About</a> · <a href="/changelog">Changelog</a></span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

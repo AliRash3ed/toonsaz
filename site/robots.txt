@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://toonsaz.vercel.app/sitemap.xml

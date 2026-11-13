@@ -22,6 +22,7 @@
 - Setup: `npm run setup` in the `avatar` folder installs npm packages, checks Node, Python and ffmpeg, and pre-fetches the pinned HyperFrames 0.9.30 renderer. `npm run library` starts the editor at http://127.0.0.1:3010/library.html.
 - Export: the editor calls the pinned HyperFrames CLI to rasterise the composition and ffmpeg to encode it. The first export downloads a headless Chrome build (about 150 MB) once; later exports run locally.
 - Output: 1080p H.264 MP4, or VP9 WebM with alpha.
+- Demo: a 31-second screen recording at https://toonsaz.vercel.app/assets/toonsaz-demo.mp4 shows the editor choosing a character, pinning a gesture, converting Roman Urdu to Devanagari, and playing an Edge TTS narration.
 
 ## What it is not
 

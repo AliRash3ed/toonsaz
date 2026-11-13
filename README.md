@@ -8,6 +8,8 @@ subscription, no API key, and nothing uploaded.
 
 ![The ToonSaz editor](site/assets/editor.png)
 
+**[Watch the 31-second demo](https://toonsaz.vercel.app/#demo)** — the real editor, no mockups.
+
 ## Why it exists
 
 Most avatar tools assume you write in English, render in someone else's cloud, and pay per

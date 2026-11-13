@@ -92,6 +92,20 @@
       "author": { "@id": "https://toonsaz.vercel.app/#person" }
     },
     {
+      "@type": "VideoObject",
+      "@id": "https://toonsaz.vercel.app/#demo",
+      "name": "ToonSaz demo: pick a character, convert the script, play the narration",
+      "description": "A screen recording of the local ToonSaz editor: choosing one of forty illustrated presenters, pinning a gesture, converting Roman Urdu to Devanagari, and playing a lip-synced narration generated with Edge TTS.",
+      "thumbnailUrl": "https://toonsaz.vercel.app/assets/editor.png",
+      "uploadDate": "2026-11-13",
+      "duration": "PT31S",
+      "contentUrl": "https://toonsaz.vercel.app/assets/toonsaz-demo.mp4",
+      "width": 1280,
+      "height": 720,
+      "isFamilyFriendly": true,
+      "publisher": { "@id": "https://toonsaz.vercel.app/#org" }
+    },
+    {
       "@type": "FAQPage",
       "@id": "https://toonsaz.vercel.app/#faq",
       "mainEntity": [
@@ -181,6 +195,23 @@
     <figure class="hero-shot">
       <img src="/assets/editor.png" width="1440" height="1180" alt="The ToonSaz editor: a cast strip of cartoon characters, a live avatar preview, gesture controls and a voice panel." fetchpriority="high">
       <figcaption>The editor, running locally on port 3010</figcaption>
+    </figure>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="demo">
+  <div class="wrap">
+    <p class="eyebrow">Watch it work</p>
+    <h2>Picked, typed, converted, played.</h2>
+    <p class="lede">A real session in the shipping editor: choose one of the illustrated presenters, pin a gesture, type Roman Urdu and convert it to Devanagari, then play the narration. The voice is Edge TTS and the lip sync is Rhubarb.</p>
+    <figure class="demo-shot">
+      <video controls preload="none" playsinline poster="/assets/toonsaz-demo-poster.jpg" width="1280" height="720">
+        <source src="/assets/toonsaz-demo.mp4" type="video/mp4">
+        Your browser cannot play this video. <a href="/assets/toonsaz-demo.mp4">Download the demo</a>.
+      </video>
+      <figcaption>No cuts, no mockups — 31 seconds of the local editor at 1280 × 720.</figcaption>
     </figure>
   </div>
 </section>

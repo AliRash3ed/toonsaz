@@ -1,9 +1,9 @@
 globalThis.AvatarSettings = {
   "avatar": "ayan",
-  "background": "cream-grid",
+  "background": "white-grid",
   "customBackground": null,
   "layout": "solo",
-  "aspectRatio": "1:1",
+  "aspectRatio": "9:16",
   "placement": {
     "x": 0,
     "y": 0,
@@ -11,7 +11,7 @@ globalThis.AvatarSettings = {
   },
   "outfit": "profile",
   "glasses": "none",
-  "hat": "none",
+  "hat": "inquisitor",
   "earrings": "profile",
   "neckwear": "profile",
   "gesture": "auto",

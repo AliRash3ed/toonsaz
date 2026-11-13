@@ -11,6 +11,7 @@ import {
   parseAssignedJSON,
   parseRange,
   patchCanvasMarkup,
+  validateCredentials,
   validateSettings,
 } from './library-server.mjs';
 
@@ -41,6 +42,17 @@ test('upload names and settings enforce the complete strict contract', () => {
     { video: { src: '../secret.mp4' } }, { customBackground: '../secret.png' },
     { customBackground: 'assets/uploads/image-123e4567-e89b-12d3-a456-426614174000-vector.svg' },
   ]) assert.throws(() => validateSettings(patch));
+});
+
+test('credentials accept real tokens, allow removal, and reject injection', () => {
+  assert.deepEqual(validateCredentials({ openrouter: 'sk-or-v1-abc_123.def' }), { openrouter: 'sk-or-v1-abc_123.def' });
+  assert.deepEqual(validateCredentials({ omnivoice: ' hf_abcdefghijklmnop ' }), { omnivoice: 'hf_abcdefghijklmnop' });
+  assert.deepEqual(validateCredentials({ openrouter: null }), { openrouter: null });
+  assert.deepEqual(validateCredentials({ openrouter: '' }), { openrouter: null });
+  for (const patch of [
+    {}, { unknown: 'x' }, { openrouter: 42 }, { openrouter: 'abc\nOPENROUTER_API_KEY=other' },
+    { openrouter: 'abc def' }, { openrouter: 'x'.repeat(401) }, { openrouter: '../secret' },
+  ]) assert.throws(() => validateCredentials(patch));
 });
 
 test('canvas markup patching changes every required target for all aspects', () => {
@@ -365,6 +377,41 @@ test('voice capabilities are environment-derived and may be disabled by injectio
   });
   const disabledState = await (await fetch(disabled.base + '/api/state')).json();
   assert.deepEqual(disabledState.capabilities, { edge: false, omni: false, aiCues: false });
+});
+
+test('the settings panel writes .env.local and activates providers without a restart', async t => {
+  const { root, base, post } = await fixture(t, { env: { PATH: process.env.PATH || '' } });
+  assert.equal((await (await fetch(base + '/api/state')).json()).capabilities.aiCues, false);
+
+  const saved = await post('/api/credentials', { openrouter: 'sk-or-v1-test-token', omnivoice: 'hf_test-token' });
+  assert.equal(saved.status, 200);
+  const body = await saved.json();
+  assert.deepEqual(body.capabilities, { edge: true, omni: true, aiCues: true });
+  assert.deepEqual(body.saved, ['openrouter', 'omnivoice']);
+  assert.equal(body.providers.omni.ready, true);
+  assert.equal(body.providers.aiCues.ready, true);
+  assert.ok(!JSON.stringify(body).includes('sk-or-v1-test-token'), 'the key must never be echoed back');
+
+  let envFile = await readFile(join(root, '.env.local'), 'utf8');
+  assert.match(envFile, /^OPENROUTER_API_KEY=sk-or-v1-test-token$/m);
+  assert.match(envFile, /^OMNIVOICE_HF_TOKEN=hf_test-token$/m);
+
+  // Unrelated variables survive and only the patched key changes.
+  await writeFile(join(root, '.env.local'), 'KEEP=me\nOPENROUTER_API_KEY=old\nOMNIVOICE_HF_TOKEN=old\n');
+  const replaced = await (await post('/api/credentials', { openrouter: 'sk-or-v1-new' })).json();
+  assert.equal(replaced.capabilities.aiCues, true);
+  envFile = await readFile(join(root, '.env.local'), 'utf8');
+  assert.match(envFile, /^KEEP=me$/m);
+  assert.match(envFile, /^OPENROUTER_API_KEY=sk-or-v1-new$/m);
+  assert.match(envFile, /^OMNIVOICE_HF_TOKEN=old$/m);
+
+  const removed = await (await post('/api/credentials', { openrouter: null })).json();
+  assert.equal(removed.capabilities.aiCues, false);
+  assert.doesNotMatch(await readFile(join(root, '.env.local'), 'utf8'), /OPENROUTER_API_KEY/);
+
+  assert.equal((await post('/api/credentials', { openrouter: 'bad token' })).status, 400);
+  assert.equal((await post('/api/credentials', {})).status, 400);
+  assert.equal((await post('/api/credentials', { openrouter: 'x' }, { Origin: 'https://foreign.example' })).status, 403);
 });
 
 test('voice generation API rejects unknown fields, unsafe inputs, invalid enums and ranges', async t => {

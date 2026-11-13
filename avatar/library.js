@@ -44,7 +44,7 @@
     edgeTab.title = capabilities.edge === true ? "Internet connection required." : "Edge TTS dependencies are unavailable. Open this tab for details.";
     const omniTab = document.querySelector('[data-voice-source="omni"]');
     omniTab.disabled = false;
-    omniTab.title = capabilities.omni === true ? "" : "Add OMNIVOICE_HF_TOKEN to .env.local and restart.";
+    omniTab.title = capabilities.omni === true ? "" : "Add a Hugging Face token in Settings to enable voice cloning.";
     $("save-cues").disabled = busy || silent || !state;
     $("notice").classList.toggle("is-busy", busy);
     all(".cast-option").forEach(node => { node.disabled = busy; });
@@ -78,6 +78,28 @@
     }
     if (!shown) video.pause();
   }
+  /** Mirrors server provider readiness in the voice panel and the settings dialog. */
+  function syncProviders() {
+    const providers = state?.providers ?? {};
+    const providerText = (id, label, fallback) => {
+      const item = providers[id] ?? {};
+      const node = $(`${id === "aiCues" ? "openrouter" : id}-status`);
+      node.className = item.error ? "is-error" : item.ready ? "is-ready" : "is-setup";
+      node.lastChild.textContent = `${label}: ${item.error || (item.ready ? "ready" : item.requirement || fallback)}`;
+    };
+    providerText("edge", "Edge catalog", "checking current voices");
+    providerText("omni", "Omni", "add a Hugging Face token in Settings");
+    providerText("aiCues", "OpenRouter", "add an OpenRouter key in Settings");
+    for (const [id, statusId, removeId] of [["aiCues", "settings-openrouter-status", "settings-openrouter-remove"], ["omni", "settings-omni-status", "settings-omni-remove"]]) {
+      const item = providers[id] ?? {};
+      const badge = $(statusId);
+      if (!badge) continue;
+      badge.className = `settings-status ${item.ready ? "is-ready" : item.error ? "is-error" : "is-setup"}`;
+      badge.lastChild.textContent = item.ready ? "Ready" : item.error ? "Key needs attention" : "No key saved";
+      badge.title = item.error || item.requirement || (item.ready ? "Saved on this machine." : "");
+      $(removeId).hidden = !item.ready && !item.error;
+    }
+  }
   function applyState(next, rebuild = false, reloadVideo = false) {
     state = next;
     if (!silent) {
@@ -99,18 +121,8 @@
     $("video-file-name").textContent = state.uploads?.video?.name ?? "MP4, WebM, MOV, MKV, M4V or AVI";
     $("video-file-name").title = state.uploads?.video?.name ?? "";
     if (state.uploads?.image?.name) $("background-file").title = state.uploads.image.name;
-    const capability = state.capabilities ?? {};
-    const providers = state.providers ?? {};
-    const providerText = (id, label, fallback) => {
-      const item = providers[id] ?? {};
-      const node = $(`${id === "aiCues" ? "openrouter" : id}-status`);
-      node.className = item.error ? "is-error" : item.ready ? "is-ready" : "is-setup";
-      node.lastChild.textContent = `${label}: ${item.error || (item.ready ? "ready" : item.requirement || fallback)}`;
-    };
-    providerText("edge", "Edge catalog", "checking current voices");
-    providerText("omni", "Omni", "add OMNIVOICE_HF_TOKEN to .env.local");
-    providerText("aiCues", "OpenRouter", "add OPENROUTER_API_KEY to .env.local");
-    $("source-hint").textContent = `Local uploads are ready. Edge exposes its live voice catalog. Omni and OpenRouter activate only from local .env.local credentials after restart.`;
+    syncProviders();
+    $("source-hint").textContent = `Local uploads are ready. Edge exposes its live voice catalog. Omni and OpenRouter activate only when you add a key in Settings.`;
     $("audio-description").textContent = `Rhubarb / ${state.speech.metadata.duration.toFixed(2)} seconds`;
     $("video-enabled").checked = state.settings.video.enabled;
     const opt = options();
@@ -507,7 +519,7 @@
     });
     save({ actionCues });
   };
-  $("export-button").onclick = () => job("Rendering the saved HyperFrames project at 1080 resolution and 30 fps...", async () => {
+  $("export-button").onclick = () => job("Rendering at 1080p and 30 fps. The first export downloads the renderer once, so it takes longer than later ones...", async () => {
     if (silent) throw new Error("Return to matching narration before export.");
     const format = $("export-format").value;
     if (format === "webm" && (state.settings.background !== "transparent" || state.settings.layout !== "solo" || state.settings.video.enabled)) throw new Error("Transparent WebM needs Transparent background, Avatar only layout, and imported video switched off.");
@@ -525,6 +537,72 @@
     const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
     tabs[next].click(); tabs[next].focus();
   });
+  // Optional API keys: written to .env.local by the server, never rendered back.
+  const settingsDialog = $("settings-dialog");
+  function settingsNote(text, kind = "") {
+    const node = $("settings-note");
+    node.textContent = text;
+    node.classList.toggle("is-error", kind === "error");
+    node.classList.toggle("is-ok", kind === "ok");
+  }
+  function resetSettingsInputs() {
+    for (const button of all("[data-reveal]")) {
+      const input = $(button.dataset.reveal);
+      input.value = "";
+      input.type = "password";
+      button.textContent = "Show";
+      button.setAttribute("aria-pressed", "false");
+    }
+  }
+  $("settings-button").onclick = () => {
+    resetSettingsInputs();
+    settingsNote("Keys activate immediately. Nothing is sent anywhere until you use the feature.");
+    syncProviders();
+    settingsDialog.showModal();
+  };
+  $("settings-close").onclick = () => settingsDialog.close();
+  $("settings-cancel").onclick = () => settingsDialog.close();
+  settingsDialog.addEventListener("click", event => {
+    if (event.target === settingsDialog) settingsDialog.close();
+  });
+  all("[data-reveal]").forEach(button => {
+    button.onclick = () => {
+      const input = $(button.dataset.reveal), show = input.type === "password";
+      input.type = show ? "text" : "password";
+      button.textContent = show ? "Hide" : "Show";
+      button.setAttribute("aria-pressed", String(show));
+    };
+  });
+  async function saveCredentials(patch, message) {
+    $("settings-save").disabled = true;
+    try {
+      const result = await request("/api/credentials", patch);
+      if (state) {
+        state.capabilities = result.capabilities;
+        state.providers = result.providers;
+        syncProviders();
+        controls();
+      }
+      resetSettingsInputs();
+      settingsNote(message, "ok");
+      notice(message);
+    } catch (error) {
+      settingsNote(error.message, "error");
+    } finally {
+      $("settings-save").disabled = false;
+    }
+  }
+  $("settings-save").onclick = () => {
+    const patch = {};
+    const openrouter = $("settings-openrouter").value.trim();
+    const omni = $("settings-omni").value.trim();
+    if (openrouter) patch.openrouter = openrouter;
+    if (omni) patch.omnivoice = omni;
+    if (!Object.keys(patch).length) return settingsNote("Type a key first, or use Remove saved key below a field.", "error");
+    saveCredentials(patch, "Saved. The service is active now — no restart needed.");
+  };
+  $("settings-openrouter-remove").onclick = () => saveCredentials({ openrouter: null }, "OpenRouter key removed. AI cue analysis is off until you add one.");
+  $("settings-omni-remove").onclick = () => saveCredentials({ omnivoice: null }, "Hugging Face token removed. Voice cloning is off until you add one.");
   setVoiceSource("upload");
   init();
 })();

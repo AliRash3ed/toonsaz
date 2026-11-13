@@ -19,11 +19,12 @@
       <a class="wordmark" href="/library.html" aria-label="ToonSaz home"><span class="brand-symbol" aria-hidden="true">t<span>.</span></span><span>TOON<br>SAZ</span></a>
       <div class="local-tag"><span class="status-dot" aria-hidden="true"></span>LOCAL WORKSHOP <span class="local-sub">Local by default; remote voices are opt-in.</span></div>
       <nav class="header-actions" aria-label="Project actions">
+        <button class="settings-button" id="settings-button" type="button" aria-haspopup="dialog" title="Connect optional AI services">Settings</button>
         <a class="studio-link" href="http://localhost:3007/#project/avatar" target="_blank" rel="noopener noreferrer">Open Studio <span aria-hidden="true">↗</span></a>
         <label class="export-name-label" for="export-name"><span>FILE</span><input id="export-name" type="text" maxlength="71" value="presenter-video" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,70}" spellcheck="false" data-write disabled></label>
         <label class="export-format-label" for="export-format"><span>EXPORT</span><select id="export-format" data-write disabled><option value="mp4">MP4 / fast</option><option value="webm">WebM / transparent</option></select></label>
         <a class="download-link" id="download-link" hidden download>Download video</a>
-        <button class="button button-ink export-button" id="export-button" type="button" data-write disabled>Export video <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-4-4 4 4 4-4M4 13v4h12v-4"/></svg></button>
+        <button class="button button-ink export-button" id="export-button" type="button" title="The first export downloads the HyperFrames renderer once, then works offline." data-write disabled>Export video <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-4-4 4 4 4-4M4 13v4h12v-4"/></svg></button>
       </nav>
     </header>
 
@@ -129,6 +130,44 @@
     </main>
 
     <footer class="footer"><div class="notice" id="notice" role="status" aria-live="polite"><span class="notice-indicator" aria-hidden="true"></span><span id="notice-text">Loading your local presenter workshop...</span></div><span class="footer-note">1080 CANVAS / 30 FPS / MP4 + ALPHA WEBM</span></footer>
+
+    <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+      <div class="settings-form">
+        <header class="settings-head">
+          <div><p class="eyebrow">OPTIONAL SERVICES</p><h2 id="settings-title">Connect the extras.</h2></div>
+          <button class="settings-close" id="settings-close" type="button" aria-label="Close settings">×</button>
+        </header>
+        <p class="settings-lede">The editor works offline. Two optional services need a key: AI gesture analysis and voice cloning. Keys are saved only on this machine, in <code>avatar/.env.local</code>, and never reach this page or the website.</p>
+
+        <section class="settings-field">
+          <div class="settings-field-head"><strong>OpenRouter</strong><span class="settings-status is-setup" id="settings-openrouter-status"><span aria-hidden="true"></span>Checking</span></div>
+          <p class="settings-help">Reads a transcript and suggests gestures and expressions in any language. Without it the deterministic local planner runs. <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">Create a key <span aria-hidden="true">↗</span></a></p>
+          <div class="settings-input-row">
+            <label class="sr-only" for="settings-openrouter">OpenRouter API key</label>
+            <input id="settings-openrouter" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-...">
+            <button class="text-button settings-reveal" type="button" data-reveal="settings-openrouter" aria-pressed="false">Show</button>
+          </div>
+          <button class="text-button settings-remove" id="settings-openrouter-remove" type="button" hidden>Remove saved key</button>
+        </section>
+
+        <section class="settings-field">
+          <div class="settings-field-head"><strong>Hugging Face</strong><span class="settings-status is-setup" id="settings-omni-status"><span aria-hidden="true"></span>Checking</span></div>
+          <p class="settings-help">Unlocks Omni voice cloning from a short reference recording. Without it you can still upload narration or use Edge TTS. <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer">Create a token <span aria-hidden="true">↗</span></a></p>
+          <div class="settings-input-row">
+            <label class="sr-only" for="settings-omni">Hugging Face access token</label>
+            <input id="settings-omni" type="password" autocomplete="off" spellcheck="false" placeholder="hf_...">
+            <button class="text-button settings-reveal" type="button" data-reveal="settings-omni" aria-pressed="false">Show</button>
+          </div>
+          <button class="text-button settings-remove" id="settings-omni-remove" type="button" hidden>Remove saved token</button>
+        </section>
+
+        <div class="settings-actions">
+          <button class="button button-ink" id="settings-save" type="button">Save keys</button>
+          <button class="button button-paper" id="settings-cancel" type="button">Close</button>
+        </div>
+        <p class="settings-note" id="settings-note" role="status" aria-live="polite">Keys activate immediately. Nothing is sent anywhere until you use the feature.</p>
+      </div>
+    </dialog>
   </div>
   <noscript>This local editor needs JavaScript. Start it with node scripts/library-server.mjs and open http://127.0.0.1:3010/library.html.</noscript>
 </body>

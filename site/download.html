@@ -86,6 +86,7 @@
         <tr><td>Node.js</td><td>20 or newer, on your PATH. <code>node --version</code> should answer.</td></tr>
         <tr><td>Python</td><td>3.11 or newer, on your PATH. <code>python --version</code> should answer.</td></tr>
         <tr><td>ffmpeg</td><td>Any recent build on your PATH. <code>ffmpeg -version</code> should answer.</td></tr>
+        <tr><td>HyperFrames</td><td>Not installed by hand. <code>npm run setup</code> fetches the pinned 0.9.30 renderer, and the first export downloads its headless browser.</td></tr>
         <tr><td>RAM</td><td>4 GB minimum, 8 GB comfortable. 12 GB if you keep Whisper loaded.</td></tr>
         <tr><td>GPU</td><td>Not required. Everything runs on the CPU.</td></tr>
         <tr><td>Disk</td><td>About 1.2 GB after the first run pulls the Whisper model and the headless browser.</td></tr>
@@ -97,25 +98,30 @@
 
 <section style="padding-top:8px">
   <div class="wrap prose">
-    <h2>Install it in four commands</h2>
+    <h2>Set it up in two commands</h2>
     <p>Unzip the download, open a terminal in the folder, and run:</p>
     <pre><code>cd avatar
-npm install
-pip install edge-tts faster-whisper
+npm run setup
 npm run library</code></pre>
+    <p><code>npm run setup</code> installs the npm packages, checks Node, Python and ffmpeg, and pre-fetches the HyperFrames renderer. If something is missing it prints the command that fixes it instead of failing silently.</p>
     <p>Then open <a href="http://127.0.0.1:3010/library.html">http://127.0.0.1:3010/library.html</a>. On Windows you can skip the terminal entirely: double-click <code>Start_Avatar_Studio.bat</code> in the project root. It starts the server, waits for it, and opens the editor for you.</p>
+
+    <h3>Exporting</h3>
+    <p>Export is the step that needs HyperFrames. The editor calls a pinned HyperFrames CLI to rasterise the composition, then ffmpeg encodes it. The first export downloads the CLI and a headless Chrome build (about 150 MB), so give it a few minutes; later exports run locally.</p>
+    <p>Pick MP4 or WebM in the header, name the file, and press <strong>Export video</strong>. The render lands in <code>avatar/renders/</code> and a download link appears in the header. Transparent WebM needs the transparent background, the avatar-only layout, and imported video switched off.</p>
 
     <h3>If something does not start</h3>
     <ul>
       <li><strong>Port 3010 is busy.</strong> An older server is still running. Close the window it was started from, or end the <code>node</code> process, then relaunch.</li>
-      <li><strong>“Edge TTS dependencies are unavailable.”</strong> Run <code>pip install edge-tts</code> and restart the server. Rendering still works; only generated speech is blocked.</li>
+      <li><strong>“Edge TTS dependencies are unavailable.”</strong> Run <code>python -m pip install edge-tts</code> and restart the server. Rendering still works; only generated speech is blocked.</li>
+      <li><strong>“Local npx could not be found.”</strong> Node is not on <code>PATH</code> for the shell that started the server. Reinstall Node with the PATH option and relaunch.</li>
       <li><strong>No voices in the Edge tab.</strong> The catalogue is fetched live. Check your connection and reload.</li>
       <li><strong>Rhubarb is missing.</strong> The lipsync tool lives in <code>tools/rhubarb</code>. Re-download the repository if that folder is empty.</li>
       <li><strong>Renders are silent.</strong> Whisper needs to finish before the build starts. Watch the status line above the stage.</li>
     </ul>
 
     <h2>Optional credentials</h2>
-    <p>You do not need any of these. If you want them, copy <code>avatar/.env.example</code> to <code>avatar/.env.local</code> and fill in only what you use:</p>
+    <p>You do not need any of these. Open the editor and press <strong>Settings</strong> in the header to add a key; it is written to <code>avatar/.env.local</code> on your machine and activates immediately. You can also copy <code>avatar/.env.example</code> to <code>avatar/.env.local</code> by hand and fill in only what you use:</p>
     <ul>
       <li><code>OPENROUTER_API_KEY</code> — lets the cue planner ask a model for gesture suggestions. The local rule engine is the fallback and needs nothing.</li>
       <li><code>OMNIVOICE_HF_TOKEN</code> — enables OmniVoice reference-voice cloning. English and Spanish only.</li>

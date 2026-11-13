@@ -100,6 +100,33 @@ export function parseAssignedJSON(source, name) {
   return JSON.parse(match[1]);
 }
 
+/** The two optional providers a creator can switch on from the editor. */
+export const CREDENTIAL_FIELDS = Object.freeze({
+  openrouter: 'OPENROUTER_API_KEY',
+  omnivoice: 'OMNIVOICE_HF_TOKEN',
+});
+
+/**
+ * Validate a credentials patch. `null` removes a key; a string sets it.
+ * Tokens are restricted to the characters real API keys use, which also makes
+ * newline injection into .env.local impossible.
+ */
+export function validateCredentials(patch) {
+  object(patch, 'credentials');
+  keys(patch, Object.keys(CREDENTIAL_FIELDS), 'credentials');
+  const clean = {};
+  for (const [field, value] of Object.entries(patch)) {
+    if (value === null) { clean[field] = null; continue; }
+    if (typeof value !== 'string') throw new HttpError(400, `${field} must be a string or null.`);
+    const trimmed = value.trim();
+    if (trimmed.length > 400) throw new HttpError(400, `${field} is longer than any real API token.`);
+    if (trimmed && !/^[A-Za-z0-9_.:\-]+$/.test(trimmed)) throw new HttpError(400, `${field} contains characters an API token never uses.`);
+    clean[field] = trimmed || null;
+  }
+  if (!Object.keys(clean).length) throw new HttpError(400, 'Send openrouter, omnivoice, or both.');
+  return clean;
+}
+
 export function validateSettings(patch, current = defaults, duration = MAX_DURATION) {
   keys(patch, ['avatar', 'background', 'customBackground', 'layout', 'aspectRatio', 'placement', 'outfit', 'glasses', 'hat', 'earrings', 'neckwear', 'gesture', 'emotion', 'video', 'actionCues'], 'settings');
   const base = {
@@ -276,12 +303,18 @@ export function createLibraryServer({
   root = resolve(root);
   const realRoot = realpath(root);
   const serverEnv = { ...env };
-  const omniToken = typeof serverEnv.OMNIVOICE_HF_TOKEN === 'string' ? serverEnv.OMNIVOICE_HF_TOKEN.trim() : '';
-  const capabilities = Object.freeze({
+  const tokenOf = name => (typeof serverEnv[name] === 'string' ? serverEnv[name].trim() : '');
+  // Deliberately not frozen: the in-app settings panel can activate a provider
+  // without asking the creator to edit a dotfile and restart the server.
+  const capabilities = {
     edge: capabilityOverrides.edge === undefined ? true : capabilityOverrides.edge === true,
-    omni: capabilityOverrides.omni !== false && Boolean(omniToken),
-    aiCues: capabilityOverrides.aiCues !== false && typeof serverEnv.OPENROUTER_API_KEY === 'string' && Boolean(serverEnv.OPENROUTER_API_KEY.trim()),
-  });
+    omni: capabilityOverrides.omni !== false && Boolean(tokenOf('OMNIVOICE_HF_TOKEN')),
+    aiCues: capabilityOverrides.aiCues !== false && Boolean(tokenOf('OPENROUTER_API_KEY')),
+  };
+  const refreshCapabilities = () => {
+    if (capabilityOverrides.omni !== false) capabilities.omni = Boolean(tokenOf('OMNIVOICE_HF_TOKEN'));
+    if (capabilityOverrides.aiCues !== false) capabilities.aiCues = Boolean(tokenOf('OPENROUTER_API_KEY'));
+  };
   const timeouts = {
     edge: Number.isFinite(providerTimeouts.edge) && providerTimeouts.edge > 0 ? providerTimeouts.edge : 5 * 60 * 1000,
     omni: Number.isFinite(providerTimeouts.omni) && providerTimeouts.omni > 0 ? providerTimeouts.omni : 15 * 60 * 1000,
@@ -426,6 +459,11 @@ export function createLibraryServer({
     }
     return { audio: inputs.audio || null, video: inputs.video || null, image: inputs.image || null };
   };
+  const providerView = () => ({
+    edge: { ready: capabilities.edge, error: providerErrors.edge },
+    omni: { ready: capabilities.omni, error: providerErrors.omni, requirement: capabilities.omni ? null : 'Add a Hugging Face token in Settings to enable voice cloning.' },
+    aiCues: { ready: capabilities.aiCues, error: providerErrors.aiCues, requirement: capabilities.aiCues ? null : 'Add an OpenRouter key in Settings to enable AI cue analysis.' },
+  });
   const loadState = async () => {
     const settings = validateSettings(await loadJSON('assets/avatar-settings.json'));
     const canonical = await loadJSON('assets/narration.rhubarb.json');
@@ -438,12 +476,34 @@ export function createLibraryServer({
     const demoScript = (await readFile(await confined('assets/avatar_guide.txt'), 'utf8')).trim();
     return {
       settings, speech, uploads: await loadInputs(), demoScript, capabilities,
-      providers: {
-        edge: { ready: capabilities.edge, error: providerErrors.edge },
-        omni: { ready: capabilities.omni, error: providerErrors.omni, requirement: capabilities.omni ? null : 'Add OMNIVOICE_HF_TOKEN to .env.local and restart.' },
-        aiCues: { ready: capabilities.aiCues, error: providerErrors.aiCues, requirement: capabilities.aiCues ? null : 'Add OPENROUTER_API_KEY to .env.local and restart.' },
-      },
+      providers: providerView(),
     };
+  };
+  const credentialsPath = () => join(root, '.env.local');
+  /**
+   * Merge a credentials patch into .env.local without disturbing unrelated
+   * variables. Written through a temp file so a crash cannot leave half a file.
+   */
+  const writeCredentials = async patch => {
+    let source = '';
+    try { source = await readFile(credentialsPath(), 'utf8'); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    const lines = source.split(/\r?\n/);
+    for (const [field, name] of Object.entries(CREDENTIAL_FIELDS)) {
+      if (!Object.hasOwn(patch, field)) continue;
+      const index = lines.findIndex(line => new RegExp(`^\\s*(?:export\\s+)?${name}\\s*=`).test(line));
+      if (patch[field] === null) {
+        if (index >= 0) lines.splice(index, 1);
+        continue;
+      }
+      const entry = `${name}=${patch[field]}`;
+      if (index >= 0) lines[index] = entry;
+      else lines.push(entry);
+    }
+    while (lines.length && !lines.at(-1).trim()) lines.pop();
+    const temporary = `${credentialsPath()}.part`;
+    await writeFile(temporary, `${lines.join('\n')}\n`, { encoding: 'utf8', mode: 0o600 });
+    await renameWithRetry(temporary, credentialsPath());
   };
   const probe = async (path, requireDuration = true) => {
     const result = await run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration,format_name:stream=codec_type,codec_name,duration,width,height,avg_frame_rate,r_frame_rate,pix_fmt:stream_tags=alpha_mode', '-of', 'json', path], 'Media inspection', 60000);
@@ -632,6 +692,19 @@ export function createLibraryServer({
         if (force !== null && !['roman', 'urdu', 'devanagari'].includes(force)) throw new HttpError(400, 'Force must be roman, urdu, devanagari, or omitted.');
         return json(response, 200, { ...analyze(body.text), result: toDevanagari(body.text, { force }) });
       }
+      if (request.method === 'POST' && pathname === '/api/credentials') {
+        const patch = validateCredentials(await readJSONBody(request));
+        await writeCredentials(patch);
+        for (const [field, name] of Object.entries(CREDENTIAL_FIELDS)) {
+          if (!Object.hasOwn(patch, field)) continue;
+          if (patch[field] === null) delete serverEnv[name];
+          else serverEnv[name] = patch[field];
+        }
+        refreshCapabilities();
+        providerErrors.omni = null;
+        providerErrors.aiCues = null;
+        return json(response, 200, { saved: Object.keys(patch), capabilities, providers: providerView() });
+      }
       if (request.method === 'POST' && pathname === '/api/settings') {
         const body = await readJSONBody(request);
         const state = await enqueue('Saving choices', async () => {
@@ -770,7 +843,7 @@ export function createLibraryServer({
             for (const key of ['PATH', 'Path', 'PATHEXT', 'SystemRoot', 'WINDIR', 'TEMP', 'TMP', 'TMPDIR', 'HOME', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA', 'PYTHONPATH', 'VIRTUAL_ENV']) {
               if (serverEnv[key] !== undefined) childEnv[key] = serverEnv[key];
             }
-            if (body.source === 'omni') childEnv.OMNIVOICE_HF_TOKEN = omniToken;
+            if (body.source === 'omni') childEnv.OMNIVOICE_HF_TOKEN = tokenOf('OMNIVOICE_HF_TOKEN');
             try {
               await run(process.platform === 'win32' ? 'py' : 'python3', pythonArgs, `${body.source === 'edge' ? 'Edge TTS' : 'OmniVoice'} generation`, timeouts[body.source], { env: childEnv });
             } catch (error) {

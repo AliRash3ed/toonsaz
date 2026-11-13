@@ -38,6 +38,7 @@ a Hindi voice pronounces the words instead of mangling Latin letters.
 | Node.js | 20 or newer |
 | Python | 3.11 or newer |
 | ffmpeg | Any recent build on `PATH` |
+| HyperFrames | Fetched automatically by `npm run setup` or the first export (pinned to 0.9.30) |
 | RAM | 4 GB minimum, 8 GB comfortable |
 | GPU | Not required |
 
@@ -45,17 +46,35 @@ a Hindi voice pronounces the words instead of mangling Latin letters.
 
 ```bash
 cd avatar
-npm install
-pip install edge-tts faster-whisper
+npm run setup
 npm run library
 ```
 
-Then open <http://127.0.0.1:3010/library.html>. On Windows you can skip the terminal:
-double-click `Start_Avatar_Studio.bat` in the project root. It starts the server, waits for it,
-and opens the editor.
+`npm run setup` installs the npm packages, checks Node, Python and ffmpeg, installs nothing it
+should not, and pre-fetches the pinned HyperFrames renderer. If a tool is missing it prints the
+exact command that fixes it. Then open <http://127.0.0.1:3010/library.html>. On Windows you can
+skip the terminal: double-click `Start_Avatar_Studio.bat` in the project root. It starts the
+server, waits for it, and opens the editor.
 
-The first render downloads the Whisper model and a headless browser, so it takes longer than the
-rest. After that everything is cached locally.
+`npm install` alone is not enough — see [Export](#export) for why.
+
+## Export
+
+Export is the one step that leaves Node: the editor calls a pinned HyperFrames CLI
+(`npx --yes hyperframes@0.9.30 render`) to rasterise the composition and encode it with ffmpeg.
+
+1. Pick **MP4 / fast** or **WebM / transparent** in the header.
+2. Name the file — letters, numbers, underscores and hyphens only.
+3. Press **Export video**. The status line reports each stage.
+
+The file lands in `avatar/renders/`, and a **Download video** link appears in the header.
+
+**First export is the slow one.** It downloads HyperFrames and a headless Chrome build (about
+150 MB), then the Whisper model on the first transcription. Later exports are local and offline.
+`npm run setup` pre-fetches the renderer so only the browser and model remain.
+
+If export fails with *"Local npx could not be found"*, Node.js is not on `PATH` for the shell that
+started the server. Reinstall Node with the PATH option, or start the app from a normal terminal.
 
 ## Using it
 
@@ -70,6 +89,14 @@ rest. After that everything is cached locally.
    `avatar/renders/`.
 
 Full walkthrough: [site/docs.html](site/docs.html).
+
+## Optional services
+
+Two features are off by default: AI cue analysis through OpenRouter, and voice cloning through
+Hugging Face. Press **Settings** in the editor header to add a key. The server writes it to
+`avatar/.env.local`, switches the feature on without a restart, and never sends the stored key
+back to the page. Remove a key from the same panel. Setting the variables by hand still works —
+see `.env.example`.
 
 ## Command line
 

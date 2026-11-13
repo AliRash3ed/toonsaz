@@ -57,7 +57,7 @@
 <section style="padding-top:36px">
   <div class="wrap prose">
     <h2>Before the first run</h2>
-    <p>Start the server with <code>npm run library</code> from the <code>avatar</code> folder, or double-click <code>Start_Avatar_Studio.bat</code>. The editor opens at <code>http://127.0.0.1:3010/library.html</code>. Nothing is served to your network — the server rejects any request whose host is not localhost.</p>
+    <p>First run <code>npm run setup</code> once in the <code>avatar</code> folder. It installs the npm packages, checks Node, Python and ffmpeg, and pre-fetches the HyperFrames renderer. Then start the server with <code>npm run library</code>, or double-click <code>Start_Avatar_Studio.bat</code>. The editor opens at <code>http://127.0.0.1:3010/library.html</code>. Nothing is served to your network — the server rejects any request whose host is not localhost.</p>
 
     <h2>01 · Choose your presenter</h2>
     <p>The cast strip holds forty characters. Clicking one swaps the rig on the stage immediately, without rebuilding anything. Below the stage, the <strong>Gesture</strong>, <strong>Emotion</strong>, <strong>Look</strong> and <strong>Scene</strong> tabs change how that presenter appears and behaves.</p>
@@ -78,7 +78,10 @@
     <div class="note"><strong>Which voice for which script?</strong> A Hindi voice (<code>hi-IN</code>) reads Devanagari. An Urdu voice (<code>ur-PK</code>) reads Urdu script. If your script is in Roman Urdu, convert it first — see below.</div>
 
     <h3>OmniVoice clone</h3>
-    <p>Upload three to sixty seconds of clean speech you own or have permission to use, type the exact words spoken in that clip, and tick the consent box. Cloning is English and Spanish only, and needs <code>OMNIVOICE_HF_TOKEN</code> in <code>avatar/.env.local</code>.</p>
+    <p>Upload three to sixty seconds of clean speech you own or have permission to use, type the exact words spoken in that clip, and tick the consent box. Cloning is English and Spanish only, and needs a Hugging Face token. Add it with <strong>Settings</strong> in the editor header.</p>
+
+    <h3>Optional services</h3>
+    <p>Two extras are off until you add a key: AI cue analysis through OpenRouter, and voice cloning through Hugging Face. Press <strong>Settings</strong> in the editor header — the panel saves the key to <code>avatar/.env.local</code> on this machine and switches the feature on immediately, with no restart. <strong>Remove saved key</strong> switches it off again. The page never receives the stored key back; it only shows whether the service is ready.</p>
 
     <h2>03 · The spoken words</h2>
     <p>The script box must match the narration word for word. It is what the gesture planner reads, so a script that disagrees with the audio produces cues that land in the wrong place.</p>
@@ -107,6 +110,7 @@
       <li><strong>WebM</strong> — VP9 with an alpha channel. Only meaningful with the transparent background, and the one to composite in an editor.</li>
     </ul>
     <p>Renders land in <code>avatar/renders/</code>. A download link appears in the header when the file is ready.</p>
+    <div class="note"><strong>Export is the only step that needs HyperFrames.</strong> The editor calls a pinned HyperFrames CLI to rasterise the composition and ffmpeg to encode it. <code>npm install</code> does not provide that CLI — <code>npm run setup</code> pre-fetches it, and the first export downloads a headless Chrome build (about 150 MB). After that, exports are local. If it reports <em>“Local npx could not be found”</em>, Node is not on <code>PATH</code> for the shell that started the server.</div>
 
     <h2>Command line</h2>
     <p>Everything the editor does is also a script, which is what you want for batches:</p>

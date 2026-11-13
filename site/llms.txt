@@ -15,9 +15,12 @@
 - Performance range: 17 gesture poses, 7 facial expressions, 3 aspect ratios (1:1, 9:16, 16:9).
 - Lip sync: Rhubarb, driven by Faster-Whisper word timings.
 - Voice: Microsoft Edge TTS (no key, needs internet), imported audio, or optional OmniVoice cloning (English and Spanish).
+- Optional keys: OpenRouter (AI cue analysis) and Hugging Face (OmniVoice cloning) are added from the editor's Settings panel, which writes them to the local `avatar/.env.local` and activates them without a restart.
 - Languages: any locale with an Edge TTS voice, including Urdu, Hindi, English, Spanish, Arabic, Bengali, French, German, Japanese, Korean, Portuguese, Russian and Italian.
 - Script conversion: Roman Urdu, Hinglish and Urdu script convert to Devanagari so a Hindi voice pronounces them correctly.
 - Requirements: Node.js 20+, Python 3.11+, ffmpeg on PATH, 4 GB RAM minimum.
+- Setup: `npm run setup` in the `avatar` folder installs npm packages, checks Node, Python and ffmpeg, and pre-fetches the pinned HyperFrames 0.9.30 renderer. `npm run library` starts the editor at http://127.0.0.1:3010/library.html.
+- Export: the editor calls the pinned HyperFrames CLI to rasterise the composition and ffmpeg to encode it. The first export downloads a headless Chrome build (about 150 MB) once; later exports run locally.
 - Output: 1080p H.264 MP4, or VP9 WebM with alpha.
 
 ## What it is not

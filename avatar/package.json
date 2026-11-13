@@ -11,6 +11,7 @@
     "test": "node --test scripts/*.test.mjs",
     "snapshot": "npx --yes hyperframes@0.9.30 snapshot",
     "library": "node --env-file-if-exists=.env.local scripts/library-server.mjs",
+    "setup": "node scripts/setup.mjs",
     "avatar-job": "node scripts/avatar-job.mjs"
   },
   "dependencies": {

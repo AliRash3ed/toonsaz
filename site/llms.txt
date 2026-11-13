@@ -14,7 +14,7 @@
 - Characters: 40 shown in the editor (49 registered, 9 legacy rigs hidden).
 - Performance range: 17 gesture poses, 7 facial expressions, 3 aspect ratios (1:1, 9:16, 16:9).
 - Lip sync: Rhubarb, driven by Faster-Whisper word timings.
-- Voice: Microsoft Edge TTS (no key, needs internet), imported audio, or optional OmniVoice cloning (English and Spanish).
+- Voice: Microsoft Edge TTS (no key, needs internet), Windows offline voices (no key, no network), imported audio, or optional OmniVoice cloning (English and Spanish).
 - Optional keys: OpenRouter (AI cue analysis) and Hugging Face (OmniVoice cloning) are added from the editor's Settings panel, which writes them to the local `avatar/.env.local` and activates them without a restart.
 - Languages: any locale with an Edge TTS voice, including Urdu, Hindi, English, Spanish, Arabic, Bengali, French, German, Japanese, Korean, Portuguese, Russian and Italian.
 - Script conversion: Roman Urdu, Hinglish and Urdu script convert to Devanagari so a Hindi voice pronounces them correctly.

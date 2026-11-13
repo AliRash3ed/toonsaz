@@ -116,6 +116,7 @@ async function fixture(t, options = {}) {
     writeFile(join(root, 'scripts/transcribe-audio.py'), '# mocked process boundary\n'),
     writeFile(join(root, 'scripts/generate-voice.py'), '# mocked process boundary\n'),
     writeFile(join(root, 'scripts/list-edge-voices.py'), '# mocked process boundary\n'),
+    writeFile(join(root, 'scripts/list-local-voices.ps1'), '# mocked process boundary\n'),
     writeFile(join(root, 'scripts/npx-cli.js'), '// mocked process boundary'),
   ]);
 
@@ -163,6 +164,10 @@ async function fixture(t, options = {}) {
       await writeFile(args[args.indexOf('--output') + 1], `generated ${providerInputs.at(-1).engine}`);
       return { stdout: '', stderr: '' };
     }
+    if (executable === 'powershell') return { stdout: JSON.stringify([
+      { name: 'Microsoft David Desktop', locale: 'en-US', language: 'en', gender: 'male', label: 'Microsoft David Desktop / en-US' },
+      { name: 'Microsoft Zira Desktop', locale: 'en-US', language: 'en', gender: 'female', label: 'Microsoft Zira Desktop / en-US' },
+    ]), stderr: '' };
     if (args.some(value => /list-edge-voices\.py$/.test(value))) return { stdout: JSON.stringify([
       { name: 'ar-SA-HamedNeural', locale: 'ar-SA', language: 'ar', gender: 'male', label: 'Arabic Hamed' },
       { name: 'en-US-JennyNeural', locale: 'en-US', language: 'en', gender: 'female', label: 'English Jenny' },
@@ -233,7 +238,7 @@ test('local API automates uploads, transcription, publication, and verified MP4/
   const initial = await (await fetch(base + '/api/state')).json();
   assert.equal(initial.settings.avatar, 'sana');
   assert.equal(initial.uploads.image, null);
-  assert.deepEqual(initial.capabilities, { edge: true, omni: false, aiCues: false });
+  assert.deepEqual(initial.capabilities, { edge: true, omni: false, aiCues: false, local: process.platform === 'win32' });
 
   const planned = await (await post('/api/plan', { text: 'The upper video you are seeing is an emotional video of a baby who is going with his mother, and then he stopped.', duration: 10 })).json();
   assert.deepEqual(planned.gestureCues.map(cue => cue.gesture), ['point-up', 'empathy', 'directional', 'stop']);
@@ -366,17 +371,17 @@ test('local API automates uploads, transcription, publication, and verified MP4/
 test('voice capabilities are environment-derived and may be disabled by injection', async t => {
   const enabled = await fixture(t, { env: { PATH: process.env.PATH || '', OMNIVOICE_HF_TOKEN: 'test-credential', OPENROUTER_API_KEY: 'separate-test-credential' } });
   const enabledState = await (await fetch(enabled.base + '/api/state')).json();
-  assert.deepEqual(enabledState.capabilities, { edge: true, omni: true, aiCues: true });
+  assert.deepEqual(enabledState.capabilities, { edge: true, omni: true, aiCues: true, local: process.platform === 'win32' });
   const catalog = await (await fetch(enabled.base + '/api/voices/edge')).json();
   assert.equal(catalog.voices.some(voice => voice.language === 'ja'), true);
   assert.equal(catalog.voices.some(voice => voice.language === 'ar'), true);
 
   const disabled = await fixture(t, {
     env: { PATH: process.env.PATH || '', OMNIVOICE_HF_TOKEN: 'test-credential', OPENROUTER_API_KEY: 'separate-test-credential' },
-    capabilities: { edge: false, omni: false, aiCues: false },
+    capabilities: { edge: false, omni: false, aiCues: false, local: false },
   });
   const disabledState = await (await fetch(disabled.base + '/api/state')).json();
-  assert.deepEqual(disabledState.capabilities, { edge: false, omni: false, aiCues: false });
+  assert.deepEqual(disabledState.capabilities, { edge: false, omni: false, aiCues: false, local: false });
 });
 
 test('the settings panel writes .env.local and activates providers without a restart', async t => {
@@ -386,7 +391,7 @@ test('the settings panel writes .env.local and activates providers without a res
   const saved = await post('/api/credentials', { openrouter: 'sk-or-v1-test-token', omnivoice: 'hf_test-token' });
   assert.equal(saved.status, 200);
   const body = await saved.json();
-  assert.deepEqual(body.capabilities, { edge: true, omni: true, aiCues: true });
+  assert.deepEqual(body.capabilities, { edge: true, omni: true, aiCues: true, local: process.platform === 'win32' });
   assert.deepEqual(body.saved, ['openrouter', 'omnivoice']);
   assert.equal(body.providers.omni.ready, true);
   assert.equal(body.providers.aiCues.ready, true);
@@ -415,7 +420,7 @@ test('the settings panel writes .env.local and activates providers without a res
 });
 
 test('voice generation API rejects unknown fields, unsafe inputs, invalid enums and ranges', async t => {
-  const { post } = await fixture(t, { capabilities: { edge: false } });
+  const { post } = await fixture(t, { capabilities: { edge: false, local: true } });
   const edge = { source: 'edge', script: 'Safe script.', language: 'en', voice: 'en-US-GuyNeural', maxPause: 0.2 };
   assert.equal((await post('/api/voice/generate', edge)).status, 503);
   for (const patch of [
@@ -425,6 +430,12 @@ test('voice generation API rejects unknown fields, unsafe inputs, invalid enums 
     { source: 'other' }, { script: '' }, { script: 'x'.repeat(20001) }, { language: 'fr' }, { voice: 'unknown' },
     { language: 'es' }, { maxPause: 0.09 }, { maxPause: 0.31 }, { maxPause: '0.2' },
   ]) assert.equal((await post('/api/voice/generate', { ...edge, ...patch })).status, 400);
+
+  const local = { source: 'local', script: 'Safe script.', language: 'en', voice: 'Microsoft Zira Desktop', speed: 1 };
+  for (const patch of [
+    { voice: '' }, { voice: 'x'.repeat(201) }, { voice: 'Unknown Voice' }, { speed: 0.49 }, { speed: 1.51 }, { speed: '1' },
+    { maxPause: 0.2 }, { referenceId: '123e4567-e89b-12d3-a456-426614174000' }, { token: 'browser-token' },
+  ]) assert.equal((await post('/api/voice/generate', { ...local, ...patch })).status, 400);
 
   const omni = {
     source: 'omni', script: 'Safe script.', language: 'es',
@@ -542,6 +553,31 @@ test('Edge and Omni generation use private file arguments and feed the shared au
   const remaining = await readdir(join(root, '.voice-private'));
   assert.equal(remaining.includes(`reference-${reference.id}.wav`), false);
   assert.equal(remaining.some(name => name.startsWith('job-')), false);
+});
+
+test('Windows offline generation uses an installed voice and the shared pipeline', { skip: process.platform !== 'win32' }, async t => {
+  const { base, root, post, calls, builds, providerInputs } = await fixture(t, { env: { PATH: process.env.PATH || '' } });
+
+  const catalogResponse = await fetch(base + '/api/voices/local');
+  assert.equal(catalogResponse.status, 200);
+  const catalog = await catalogResponse.json();
+  assert.deepEqual(catalog.voices.map(voice => voice.name), ['Microsoft David Desktop', 'Microsoft Zira Desktop']);
+
+  const body = { source: 'local', script: 'Offline narration.', language: 'en', voice: 'Microsoft Zira Desktop', speed: 1.2 };
+  const response = await post('/api/voice/generate', body);
+  assert.equal(response.status, 200);
+  const state = await response.json();
+  assert.equal(state.speech.transcript, body.script);
+  assert.equal(await readFile(join(root, 'assets/narration.wav'), 'utf8'), 'generated local');
+  const call = calls.find(item => item.args.includes('--engine') && item.args[item.args.indexOf('--engine') + 1] === 'local');
+  assert.ok(call);
+  assert.equal(call.args[call.args.indexOf('--voice') + 1], body.voice);
+  assert.equal(call.args[call.args.indexOf('--speed') + 1], '1.2');
+  assert.equal(call.args.includes('--max-pause'), false);
+  assert.equal(call.args.includes(body.script), false);
+  assert.equal(providerInputs.at(-1).engine, 'local');
+  assert.equal(providerInputs.at(-1).script, `${body.script}\n`);
+  assert.ok(builds.length > 0);
 });
 
 test('provider failures are sanitized, preserve narration, clean jobs, and do not consume Omni references', async t => {

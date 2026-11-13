@@ -69,10 +69,12 @@ function checkedPlan(input) {
 
 function checkedVoiceRequest(input) {
   object(input, 'voice request');
-  if (!['edge', 'omni'].includes(input.source)) throw new HttpError(400, 'Voice source must be edge or omni.');
+  if (!['edge', 'omni', 'local'].includes(input.source)) throw new HttpError(400, 'Voice source must be edge, omni, or local.');
   const allowed = input.source === 'edge'
     ? ['source', 'script', 'language', 'voice', 'maxPause', 'useAiCues']
-    : ['source', 'script', 'language', 'referenceId', 'referenceText', 'speed', 'consent', 'useAiCues'];
+    : input.source === 'omni'
+      ? ['source', 'script', 'language', 'referenceId', 'referenceText', 'speed', 'consent', 'useAiCues']
+      : ['source', 'script', 'language', 'voice', 'speed', 'useAiCues'];
   keys(input, allowed, 'voice request');
   const script = typeof input.script === 'string' ? input.script.trim() : '';
   if (!script || input.script.length > 20000) throw new HttpError(400, 'Script must contain 1 to 20,000 characters.');
@@ -83,6 +85,12 @@ function checkedVoiceRequest(input) {
     if (!input.voice.toLowerCase().startsWith(`${input.language}-`)) throw new HttpError(400, 'The selected Edge voice does not support that language.');
     if (!Number.isFinite(input.maxPause) || input.maxPause < 0.1 || input.maxPause > 0.3) throw new HttpError(400, 'maxPause must be from 0.10 to 0.30 seconds.');
     return { ...input, script };
+  }
+  if (input.source === 'local') {
+    if (!languageCode(input.language)) throw new HttpError(400, 'Windows offline language must be a two or three letter code.');
+    if (typeof input.voice !== 'string' || !input.voice.trim() || input.voice.trim().length > 200) throw new HttpError(400, 'Select an installed Windows voice.');
+    if (!Number.isFinite(input.speed) || input.speed < 0.5 || input.speed > 1.5) throw new HttpError(400, 'Windows offline speed must be from 0.5 to 1.5.');
+    return { ...input, script, voice: input.voice.trim() };
   }
   if (!voiceLanguages.has(input.language)) throw new HttpError(400, 'Omni language must be en or es.');
   if (typeof input.referenceId !== 'string' || !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(input.referenceId)) throw new HttpError(400, 'referenceId must be an opaque server-issued ID.');
@@ -310,6 +318,7 @@ export function createLibraryServer({
     edge: capabilityOverrides.edge === undefined ? true : capabilityOverrides.edge === true,
     omni: capabilityOverrides.omni !== false && Boolean(tokenOf('OMNIVOICE_HF_TOKEN')),
     aiCues: capabilityOverrides.aiCues !== false && Boolean(tokenOf('OPENROUTER_API_KEY')),
+    local: capabilityOverrides.local === undefined ? process.platform === 'win32' : capabilityOverrides.local === true,
   };
   const refreshCapabilities = () => {
     if (capabilityOverrides.omni !== false) capabilities.omni = Boolean(tokenOf('OMNIVOICE_HF_TOKEN'));
@@ -318,9 +327,11 @@ export function createLibraryServer({
   const timeouts = {
     edge: Number.isFinite(providerTimeouts.edge) && providerTimeouts.edge > 0 ? providerTimeouts.edge : 5 * 60 * 1000,
     omni: Number.isFinite(providerTimeouts.omni) && providerTimeouts.omni > 0 ? providerTimeouts.omni : 15 * 60 * 1000,
+    local: Number.isFinite(providerTimeouts.local) && providerTimeouts.local > 0 ? providerTimeouts.local : 3 * 60 * 1000,
   };
-  const providerErrors = { edge: null, omni: null, aiCues: null };
+  const providerErrors = { edge: null, omni: null, aiCues: null, local: null };
   let edgeVoiceCatalog = null;
+  let localVoiceCatalog = null;
   if (!Number.isFinite(voiceReferenceTtlMs) || voiceReferenceTtlMs <= 0) throw new TypeError('voiceReferenceTtlMs must be positive.');
   if (typeof fetchImpl !== 'function') throw new TypeError('fetchImpl must be a function.');
   if (!Number.isFinite(aiTimeoutMs) || aiTimeoutMs <= 0) throw new TypeError('aiTimeoutMs must be positive.');
@@ -386,6 +397,26 @@ export function createLibraryServer({
     } catch (error) {
       providerErrors.edge = error.message;
       throw new HttpError(error.status || 503, `Edge voice catalog is unavailable: ${error.message}`);
+    }
+  };
+  const loadLocalVoices = async () => {
+    if (!capabilities.local) throw new HttpError(503, 'Windows offline voices are only available on Windows.');
+    if (localVoiceCatalog) return localVoiceCatalog;
+    try {
+      const script = await confined('scripts/list-local-voices.ps1');
+      const result = await run('powershell', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', script], 'Windows voice catalog', 60_000);
+      const catalog = JSON.parse(result.stdout);
+      if (!Array.isArray(catalog) || catalog.some(voice => (
+        !voice || typeof voice !== 'object' || typeof voice.name !== 'string' || !voice.name || voice.name.length > 200
+        || typeof voice.locale !== 'string' || !voice.locale || !languageCode(voice.language)
+        || typeof voice.label !== 'string'
+      ))) throw new Error('Windows returned an invalid voice catalog.');
+      localVoiceCatalog = catalog;
+      providerErrors.local = null;
+      return catalog;
+    } catch (error) {
+      providerErrors.local = error.message;
+      throw new HttpError(error.status || 503, `Windows voice catalog is unavailable: ${error.message}`);
     }
   };
   const enqueue = (label, work) => {
@@ -463,6 +494,7 @@ export function createLibraryServer({
     edge: { ready: capabilities.edge, error: providerErrors.edge },
     omni: { ready: capabilities.omni, error: providerErrors.omni, requirement: capabilities.omni ? null : 'Add a Hugging Face token in Settings to enable voice cloning.' },
     aiCues: { ready: capabilities.aiCues, error: providerErrors.aiCues, requirement: capabilities.aiCues ? null : 'Add an OpenRouter key in Settings to enable AI cue analysis.' },
+    local: { ready: capabilities.local, error: providerErrors.local, requirement: capabilities.local ? null : 'Windows offline voices are available on Windows only.' },
   });
   const loadState = async () => {
     const settings = validateSettings(await loadJSON('assets/avatar-settings.json'));
@@ -673,6 +705,11 @@ export function createLibraryServer({
       if (mutating && request.headers.origin && ![`http://127.0.0.1:${port}`, `http://localhost:${port}`].includes(request.headers.origin)) throw new HttpError(403, 'Non-local or foreign Origin rejected. Open the library on port 3010.');
       if (request.method === 'GET' && pathname === '/api/status') return json(response, 200, { processing, pending });
       if (request.method === 'GET' && pathname === '/api/voices/edge') return json(response, 200, { voices: await loadEdgeVoices() });
+      if (request.method === 'GET' && pathname === '/api/voices/local') {
+        if (!capabilities.local) return json(response, 200, { voices: [], error: 'Windows offline voices are available on Windows only.' });
+        try { return json(response, 200, { voices: await loadLocalVoices() }); }
+        catch (error) { return json(response, 200, { voices: [], error: error.message }); }
+      }
       if (request.method === 'GET' && pathname === '/api/state') { await queue; return json(response, 200, await loadState()); }
       if (request.method === 'GET' && pathname === '/api/rig') {
         await queue;
@@ -819,8 +856,13 @@ export function createLibraryServer({
       }
       if (request.method === 'POST' && pathname === '/api/voice/generate') {
         const body = checkedVoiceRequest(await readJSONBody(request));
-        if (!capabilities[body.source]) throw new HttpError(503, `${body.source === 'edge' ? 'Edge TTS' : 'OmniVoice'} is not configured on this server.`);
-        const state = await enqueue(`Generating ${body.source === 'edge' ? 'Edge' : 'Omni'} narration`, async () => {
+        const label = body.source === 'edge' ? 'Edge TTS' : body.source === 'omni' ? 'OmniVoice' : 'Windows offline';
+        if (!capabilities[body.source]) throw new HttpError(503, `${label} is not available on this server.`);
+        if (body.source === 'local') {
+          const voices = await loadLocalVoices().catch(error => { throw new HttpError(error.status || 503, error.message); });
+          if (!voices.some(voice => voice.name === body.voice)) throw new HttpError(400, 'Select an installed Windows voice.');
+        }
+        const state = await enqueue(`Generating ${label} narration`, async () => {
           const previous = await loadState();
           const reference = body.source === 'omni' ? await voiceReference(body.referenceId) : null;
           const directory = await voicePrivateDirectory();
@@ -834,10 +876,12 @@ export function createLibraryServer({
             pythonArgs.push('--engine', body.source, '--script-file', scriptPath, '--output', outputPath, '--language', body.language);
             if (body.source === 'edge') {
               pythonArgs.push('--voice', body.voice, '--max-pause', String(body.maxPause));
-            } else {
+            } else if (body.source === 'omni') {
               const referenceTextPath = join(jobDirectory, 'reference.txt');
               await writeFile(referenceTextPath, `${body.referenceText}\n`, { flag: 'wx', mode: 0o600 });
               pythonArgs.push('--reference-audio', reference.path, '--reference-text-file', referenceTextPath, '--speed', String(body.speed));
+            } else {
+              pythonArgs.push('--voice', body.voice, '--speed', String(body.speed));
             }
             const childEnv = {};
             for (const key of ['PATH', 'Path', 'PATHEXT', 'SystemRoot', 'WINDIR', 'TEMP', 'TMP', 'TMPDIR', 'HOME', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA', 'PYTHONPATH', 'VIRTUAL_ENV']) {
@@ -845,7 +889,7 @@ export function createLibraryServer({
             }
             if (body.source === 'omni') childEnv.OMNIVOICE_HF_TOKEN = tokenOf('OMNIVOICE_HF_TOKEN');
             try {
-              await run(process.platform === 'win32' ? 'py' : 'python3', pythonArgs, `${body.source === 'edge' ? 'Edge TTS' : 'OmniVoice'} generation`, timeouts[body.source], { env: childEnv });
+              await run(process.platform === 'win32' ? 'py' : 'python3', pythonArgs, `${label} generation`, timeouts[body.source], { env: childEnv });
             } catch (error) {
               providerErrors[body.source] = error.message;
               if (error.status === 504) throw new HttpError(504, 'Voice generation timed out. Retry with a shorter script.');

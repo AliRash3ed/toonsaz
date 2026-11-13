@@ -90,7 +90,7 @@
         <tr><td>RAM</td><td>4 GB minimum, 8 GB comfortable. 12 GB if you keep Whisper loaded.</td></tr>
         <tr><td>GPU</td><td>Not required. Everything runs on the CPU.</td></tr>
         <tr><td>Disk</td><td>About 1.2 GB after the first run pulls the Whisper model and the headless browser.</td></tr>
-        <tr><td>Internet</td><td>Needed once for setup, and for Edge TTS. Import your own audio and rendering is fully offline.</td></tr>
+        <tr><td>Internet</td><td>Needed once for setup, and for Edge TTS. The Windows offline voices and imported audio render fully offline.</td></tr>
       </tbody>
     </table>
   </div>
@@ -115,7 +115,8 @@ npm run library</code></pre>
       <li><strong>Port 3010 is busy.</strong> An older server is still running. Close the window it was started from, or end the <code>node</code> process, then relaunch.</li>
       <li><strong>“Edge TTS dependencies are unavailable.”</strong> Run <code>python -m pip install edge-tts</code> and restart the server. Rendering still works; only generated speech is blocked.</li>
       <li><strong>“Local npx could not be found.”</strong> Node is not on <code>PATH</code> for the shell that started the server. Reinstall Node with the PATH option and relaunch.</li>
-      <li><strong>No voices in the Edge tab.</strong> The catalogue is fetched live. Check your connection and reload.</li>
+      <li><strong>No voices in the Edge tab.</strong> The catalogue is fetched live. Check your connection and reload. The Windows offline tab does not need a connection.</li>
+      <li><strong>No voices in the Windows offline tab.</strong> Install the speech pack for that language in Windows Settings → Time &amp; language → Language &amp; region, then restart the editor.</li>
       <li><strong>Rhubarb is missing.</strong> The lipsync tool lives in <code>tools/rhubarb</code>. Re-download the repository if that folder is empty.</li>
       <li><strong>Renders are silent.</strong> Whisper needs to finish before the build starts. Watch the status line above the stage.</li>
     </ul>

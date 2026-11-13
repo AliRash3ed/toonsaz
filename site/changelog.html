@@ -44,6 +44,20 @@
     <div class="changelog">
 
       <article>
+        <time datetime="2026-11-13">Unreleased</time>
+        <div>
+          <h3>Settings, offline voices, and a real setup step</h3>
+          <ul>
+            <li><strong>API keys in the editor.</strong> A Settings panel writes OpenRouter and Hugging Face credentials to the local <code>avatar/.env.local</code> and activates the feature immediately. Keys are never sent back to the page.</li>
+            <li><strong>Windows offline voices.</strong> A fourth voice source uses the speech voices already installed with Windows. No key, no network, no model download.</li>
+            <li><strong>One-command setup.</strong> <code>npm run setup</code> installs the npm packages, checks Node, Python and ffmpeg, and pre-fetches the pinned HyperFrames renderer that export uses.</li>
+            <li><strong>Export documented.</strong> The quick start, download page and docs now explain the HyperFrames step and the first-run browser download instead of leaving it as a surprise.</li>
+            <li><strong>128 tests.</strong> Added offline-voice request, catalog and pipeline coverage.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article>
         <time datetime="2026-11-13">13 Nov 2026</time>
         <div>
           <h3>1.0.0 — the Urdu and Hindi release</h3>
@@ -53,7 +67,7 @@
             <li><strong>The Arabic question mark now counts.</strong> <code>؟</code> (U+061F) was ignored by an ASCII-only check, so every Urdu question missed its thinking cue.</li>
             <li><strong>Combining marks survive tokenising.</strong> Devanagari matras and Urdu diacritics were being stripped, turning <span lang="hi">नमस्ते</span> into <span lang="hi">नमसत</span> before any rule saw it.</li>
             <li><strong>23 new characters.</strong> The Forma2D set joins the original rigs: 49 registered, 40 shown in the editor, 36 curated for batch jobs.</li>
-            <li><strong>125 tests.</strong> Added multilingual gesture regressions, transliteration tests and cross-file registration guards so an avatar cannot be half-wired.</li>
+            <li><strong>125 tests at the 1.0 cut.</strong> Added multilingual gesture regressions, transliteration tests and cross-file registration guards so an avatar cannot be half-wired.</li>
             <li><strong>Renamed to ToonSaz.</strong> Same tool, a name people can spell.</li>
           </ul>
         </div>

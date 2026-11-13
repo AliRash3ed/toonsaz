@@ -23,6 +23,8 @@ a Hindi voice pronounces the words instead of mangling Latin letters.
   recording, or from generated speech.
 - **Edge TTS** — type a script and let Microsoft's neural voices read it. Free, no key, needs a
   connection.
+- **Windows offline voices** — use the voices already installed with Windows Speech. No key, no
+  network, no model download.
 - **Devanagari converter** — Roman Urdu, Hinglish and Urdu script in, readable Devanagari out,
   with a preview you can reject before anything renders.
 - **Wardrobe and scene** — outfits, glasses, headwear, earrings, neckwear; paper, solid, chroma
@@ -80,8 +82,8 @@ started the server. Reinstall Node with the PATH option, or start the app from a
 
 1. **Choose your presenter.** Click a character in the cast strip. The Gesture, Emotion, Look and
    Scene tabs below the stage change how they appear and behave.
-2. **Give it a voice.** Upload a recording, generate speech with Edge TTS, or clone a reference
-   clip with OmniVoice (optional, English and Spanish only).
+2. **Give it a voice.** Upload a recording, generate speech with Edge TTS, use the offline
+   Windows voices, or clone a reference clip with OmniVoice (optional, English and Spanish only).
 3. **Write the spoken words.** The script must match the audio word for word — it is what the
    gesture planner reads. If it is in Roman Urdu or Urdu script, press *Convert to Devanagari*,
    read the preview, then apply it.

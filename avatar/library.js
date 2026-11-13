@@ -11,7 +11,7 @@
   const hiddenProfiles = new Set(["bearded-man", "curly-boy", "cap-guy", "pompadour-guy", "soft-bust", "blond-swept", "clay", "homer", "bart"]);
   const sample = "The upper video you are seeing is an emotional video of a baby who is going with his mother, and then he stopped.";
   let state, svg, rig, speech, silent = false, overrides = {}, busy = false, playing = false, time = 0, startedAt = 0;
-  let voiceSource = "upload", voiceReference = null, edgeVoices = [], edgeCatalogReady = false;
+  let voiceSource = "upload", voiceReference = null, edgeVoices = [], edgeCatalogReady = false, localVoices = [], localCatalogReady = false;
   const audio = $("narration"), video = $("stage-video");
   const element = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -36,6 +36,7 @@
     $("export-format").disabled = busy || !state || silent;
     const capabilities = state?.capabilities ?? {};
     $("edge-generate").disabled = busy || !state || capabilities.edge !== true || !edgeCatalogReady || !$("edge-voice").value;
+    $("local-generate").disabled = busy || !state || capabilities.local !== true || !localCatalogReady || !$("local-voice").value;
     $("omni-generate").disabled = busy || !state || capabilities.omni !== true || !voiceReference;
     $("use-ai-cues").disabled = busy || !state || capabilities.aiCues !== true;
     $("use-video-audio").disabled = busy || !state?.uploads?.video?.hasAudio;
@@ -45,6 +46,9 @@
     const omniTab = document.querySelector('[data-voice-source="omni"]');
     omniTab.disabled = false;
     omniTab.title = capabilities.omni === true ? "" : "Add a Hugging Face token in Settings to enable voice cloning.";
+    const localTab = document.querySelector('[data-voice-source="local"]');
+    localTab.disabled = false;
+    localTab.title = capabilities.local === true ? "Runs offline through Windows Speech." : "Windows offline voices are available on Windows only.";
     $("save-cues").disabled = busy || silent || !state;
     $("notice").classList.toggle("is-busy", busy);
     all(".cast-option").forEach(node => { node.disabled = busy; });
@@ -313,6 +317,24 @@
     edgeCatalogReady = edgeVoices.length > 0;
     updateEdgeVoiceOptions();
   }
+  async function loadLocalVoiceCatalog() {
+    const result = await request("/api/voices/local", undefined, "GET");
+    localVoices = result.voices;
+    const select = $("local-voice"); select.replaceChildren();
+    if (!localVoices.length) {
+      const option = element("option", "", result.error ? "Windows voices could not be listed" : "No Windows voices installed");
+      option.value = ""; select.append(option);
+      if (result.error) state.providers.local.error = result.error;
+    } else {
+      for (const voice of localVoices) {
+        const option = element("option", "", voice.label);
+        option.value = voice.name; select.append(option);
+      }
+      select.value = (localVoices.find(voice => voice.language === "en") ?? localVoices[0]).name;
+    }
+    localCatalogReady = localVoices.length > 0;
+    controls();
+  }
   function uploadRequest(path, file, progressId) {
     const progress = $(progressId), bar = progress?.firstElementChild;
     if (progress) progress.hidden = false;
@@ -350,11 +372,15 @@
     });
   }
   async function generateVoice(source) {
-    return job(source === "edge" ? "Generating Edge TTS, then transcribing and animating..." : "Cloning the permitted reference voice, then transcribing and animating...", async () => {
+    const progress = source === "edge" ? "Generating Edge TTS, then transcribing and animating..." : source === "local" ? "Generating Windows offline speech, then transcribing and animating..." : "Cloning the permitted reference voice, then transcribing and animating...";
+    return job(progress, async () => {
       const script = $("script").value.trim();
       if (!script) throw new Error("Enter the script to speak first.");
       const body = source === "edge" ? {
         source, script, language: $("edge-language").value.split("-")[0], voice: $("edge-voice").value, maxPause: Number($("edge-pause").value) / 100, useAiCues: $("use-ai-cues").checked,
+      } : source === "local" ? {
+        source, script, language: (localVoices.find(voice => voice.name === $("local-voice").value)?.language ?? "en"), voice: $("local-voice").value,
+        speed: Number($("local-speed").value) / 100, useAiCues: $("use-ai-cues").checked,
       } : {
         source, script, language: $("omni-language").value, referenceId: voiceReference?.id,
         referenceText: $("voice-reference-text").value, speed: Number($("omni-speed").value) / 100,
@@ -362,7 +388,8 @@
       };
       const result = await request("/api/voice/generate", body);
       if (source === "omni") { voiceReference = null; $("voice-reference-file").value = ""; $("voice-reference-name").textContent = "Reference consumed. Upload another to clone again."; }
-      return applyBuiltState(result, `${source === "edge" ? "Edge TTS" : "Omni voice clone"} is lip-synced with word-timed gestures and emotions.`);
+      const label = source === "edge" ? "Edge TTS" : source === "local" ? "Windows offline voice" : "Omni voice clone";
+      return applyBuiltState(result, `${label} is lip-synced with word-timed gestures and emotions.`);
     });
   }
   async function upload(kind, file) {
@@ -406,6 +433,10 @@
       if (data.capabilities.edge) {
         try { await loadEdgeVoiceCatalog(); }
         catch (error) { state.providers.edge.error = error.message; applyState(state); }
+      }
+      if (data.capabilities.local) {
+        try { await loadLocalVoiceCatalog(); }
+        catch (error) { state.providers.local.error = error.message; applyState(state); }
       }
       $("script").value = speech.transcript || data.demoScript;
       notice("Choose a presenter, then add narration or a video to accompany it.");
@@ -452,8 +483,10 @@
   $("language").onchange = () => { if ($("language").value !== "en") $("recognizer").value = "phonetic"; };
   $("edge-language").onchange = updateEdgeVoiceOptions;
   $("edge-pause").oninput = () => { $("edge-pause-value").textContent = `${(Number($("edge-pause").value) / 100).toFixed(2)}s`; };
+  $("local-speed").oninput = () => { $("local-speed-value").textContent = `${(Number($("local-speed").value) / 100).toFixed(2)}x`; };
   $("omni-speed").oninput = () => { $("omni-speed-value").textContent = `${(Number($("omni-speed").value) / 100).toFixed(2)}x`; };
   $("edge-generate").onclick = () => generateVoice("edge");
+  $("local-generate").onclick = () => generateVoice("local");
   $("omni-generate").onclick = () => generateVoice("omni");
   $("export-format").onchange = () => {
     $("export-button").firstChild.textContent = $("export-format").value === "webm" ? "Export alpha WebM " : "Export fast MP4 ";

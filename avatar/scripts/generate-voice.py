@@ -15,7 +15,7 @@ class AdapterError(RuntimeError):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Generate private avatar narration.")
-    parser.add_argument("--engine", required=True, choices=("edge", "omni"))
+    parser.add_argument("--engine", required=True, choices=("edge", "omni", "local"))
     parser.add_argument("--script-file", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--language", required=True)
@@ -68,6 +68,21 @@ def validate_args(args):
             raise AdapterError("The selected Edge voice does not support that language.")
         if not 0.10 <= args.max_pause <= 0.30:
             raise AdapterError("Edge max pause must be from 0.10 to 0.30 seconds.")
+        return script, output, None, None
+
+    if args.engine == "local":
+        if sys.platform != "win32":
+            raise AdapterError("Windows offline voices are only available on Windows.")
+        if not args.voice:
+            raise AdapterError("Windows offline voices require --voice.")
+        if len(args.voice) > 200:
+            raise AdapterError("Select an installed Windows voice.")
+        if args.max_pause is not None or args.reference_audio is not None or args.reference_text_file is not None:
+            raise AdapterError("Edge and Omni options cannot be used with Windows offline voices.")
+        if args.speed is None or not 0.5 <= args.speed <= 1.5:
+            raise AdapterError("Windows offline speed must be from 0.5 to 1.5.")
+        if not re.fullmatch(r"[a-z]{2,3}", args.language):
+            raise AdapterError("Windows offline language must be a two or three letter code.")
         return script, output, None, None
 
     if args.reference_audio is None or args.reference_text_file is None or args.speed is None:
@@ -148,6 +163,63 @@ async def edge_generate(script, voice, destination):
         raise AdapterError("Edge TTS did not return an audio file.")
 
 
+SAPI_SCRIPT = r"""
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Speech
+$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
+$voice = $env:TOONSAZ_SAPI_VOICE
+if ($voice) { $synth.SelectVoice($voice) }
+$synth.Rate = [int]$env:TOONSAZ_SAPI_RATE
+$synth.SetOutputToWaveFile($env:TOONSAZ_SAPI_OUTPUT)
+$text = [IO.File]::ReadAllText($env:TOONSAZ_SAPI_SCRIPT, [Text.Encoding]::UTF8)
+$synth.Speak($text)
+$synth.Dispose()
+"""
+
+
+def local_generate(script_path, voice, speed, destination):
+    if sys.platform != "win32":
+        raise AdapterError("Windows offline voices are only available on Windows.")
+    powershell = shutil.which("powershell") or shutil.which("pwsh")
+    if not powershell:
+        raise AdapterError("PowerShell is required for Windows offline voices.")
+    rate = max(-10, min(10, round((speed - 1) * 10)))
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "TOONSAZ_SAPI_VOICE": voice,
+            "TOONSAZ_SAPI_RATE": str(rate),
+            "TOONSAZ_SAPI_SCRIPT": str(script_path),
+            "TOONSAZ_SAPI_OUTPUT": str(destination),
+        }
+    )
+    try:
+        result = subprocess.run(
+            [
+                powershell,
+                "-NoProfile",
+                "-NonInteractive",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                SAPI_SCRIPT,
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+    except OSError as error:
+        raise AdapterError("Windows Speech could not be started.") from error
+    if result.returncode != 0 or not destination.is_file() or destination.stat().st_size == 0:
+        detail = result.stderr.decode("utf-8", "replace").strip().splitlines()
+        message = detail[-1] if detail else "the selected voice may not be installed."
+        raise AdapterError(f"Windows Speech could not generate audio: {message}")
+    if destination.stat().st_size <= 44:
+        raise AdapterError("Windows Speech returned an empty audio file. Check the selected voice.")
+
+
 def removable_provider_file(path, protected):
     try:
         resolved = path.resolve()
@@ -213,11 +285,21 @@ def main():
     script, output, reference_audio, reference_text = validate_args(args)
     work = Path(tempfile.mkdtemp(prefix=".voice-adapter-", dir=output.parent))
     try:
-        source = work / ("edge.mp3" if args.engine == "edge" else "omni.wav")
         if args.engine == "edge":
+            source = work / "edge.mp3"
             asyncio.run(edge_generate(script, args.voice, source))
             ffmpeg_normalize(source, output, args.max_pause)
+        elif args.engine == "local":
+            source = work / "local.wav"
+            local_generate(
+                Path(args.script_file).expanduser().resolve(),
+                args.voice,
+                args.speed,
+                source,
+            )
+            ffmpeg_normalize(source, output)
         else:
+            source = work / "omni.wav"
             omni_generate(
                 script,
                 args.language,

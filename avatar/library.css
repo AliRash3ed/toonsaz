@@ -145,7 +145,7 @@ fieldset { margin: 0; padding: 0; min-width: 0; border: 0; }
 .placement-controls input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
 .placement-controls .text-button { grid-column: 1 / -1; justify-self: start; }
 .source-section { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 3px; }
-.voice-source-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+.voice-source-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
 .voice-source-tabs button { min-height: 34px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--muted); font-size: 9px; font-weight: 600; }
 .voice-source-tabs button.is-active { background: var(--soft); color: var(--ink); border-color: #85977a; }
 .voice-source-panel { border: 1px solid #d9dccf; border-radius: 5px; padding: 12px; background: rgba(255,255,255,.25); }
